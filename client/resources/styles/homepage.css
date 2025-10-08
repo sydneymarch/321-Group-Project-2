@@ -179,6 +179,74 @@ html {
     color: var(--light-blue) !important;
 }
 
+/* Navbar Button Styles */
+.nav-button {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    padding: 0.75rem 1rem !important;
+    margin: 0 0.25rem !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    border: 1px solid transparent !important;
+}
+
+.nav-button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(-1px) !important;
+}
+
+.nav-button.active {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: var(--light-blue) !important;
+}
+
+.nav-button-outline {
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    background-color: transparent !important;
+}
+
+.nav-button-outline:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--light-blue) !important;
+    color: var(--light-blue) !important;
+}
+
+.nav-button-primary {
+    background-color: var(--light-blue) !important;
+    color: var(--primary-blue) !important;
+    border: 1px solid var(--light-blue) !important;
+}
+
+.nav-button-primary:hover {
+    background-color: var(--white) !important;
+    color: var(--primary-blue) !important;
+    border-color: var(--white) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Mobile Responsive Navbar */
+@media (max-width: 991.98px) {
+    .nav-button {
+        height: auto !important;
+        margin: 0.25rem 0 !important;
+        padding: 0.75rem 1rem !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .nav-button-outline,
+    .nav-button-primary {
+        margin: 0.5rem 0 !important;
+    }
+    
+    .navbar-nav {
+        width: 100% !important;
+    }
+}
+
 /* Footer */
 footer {
     background-color: var(--primary-blue) !important;
