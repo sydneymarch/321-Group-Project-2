@@ -1,0 +1,244 @@
+/* SeaTrue Homepage Custom Styles - Blue Theme */
+
+:root {
+    --primary-blue: #023e8a;
+    --secondary-blue: #0077b6;
+    --light-blue: #90e0ef;
+    --white: #ffffff;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 50%, var(--primary-blue) 100%);
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="waves" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0,50 Q25,0 50,50 T100,50 L100,100 L0,100 Z" fill="rgba(144,224,239,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23waves)"/></svg>');
+    background-size: 200px 200px;
+    position: relative;
+    min-height: 100vh;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 62, 138, 0.3);
+    z-index: 1;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Stat Cards */
+.stat-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem 1rem;
+    border: 1px solid rgba(144, 224, 239, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(2, 62, 138, 0.3);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    color: var(--light-blue) !important;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+    font-weight: 500;
+    color: var(--white);
+}
+
+/* Testimonial Section */
+.testimonial-section {
+    background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--primary-blue) 50%, var(--secondary-blue) 100%);
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="fish" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M40,10 Q60,30 40,50 Q20,30 40,10 M40,50 Q60,70 40,90 Q20,70 40,50" fill="rgba(144,224,239,0.05)" stroke="rgba(144,224,239,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23fish)"/></svg>');
+    background-size: 160px 160px;
+    position: relative;
+}
+
+.testimonial-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 62, 138, 0.4);
+    z-index: 1;
+}
+
+.testimonial-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.testimonial-content {
+    padding: 3rem 0;
+}
+
+/* Impact Banner */
+.impact-stats {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.impact-stat {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+}
+
+.impact-separator {
+    margin: 0 1rem;
+    opacity: 0.7;
+}
+
+.impact-label {
+    margin-left: 0.5rem;
+    opacity: 0.9;
+}
+
+/* Feature Icons */
+.feature-icon {
+    text-align: center;
+    padding: 1rem;
+}
+
+.feature-icon i {
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--primary-blue) !important;
+}
+
+.feature-icon h5 {
+    color: var(--primary-blue) !important;
+}
+
+.feature-icon p {
+    color: var(--secondary-blue) !important;
+}
+
+/* Animations */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom button styles */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-blue) !important;
+    border-color: var(--secondary-blue) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(2, 62, 138, 0.3);
+}
+
+.btn-outline-light:hover {
+    background-color: var(--light-blue) !important;
+    border-color: var(--light-blue) !important;
+    color: var(--primary-blue) !important;
+}
+
+/* Card hover effects */
+.card {
+    transition: all 0.3s ease;
+    background-color: var(--white) !important;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(2, 62, 138, 0.15) !important;
+}
+
+/* Text colors */
+.text-primary {
+    color: var(--primary-blue) !important;
+}
+
+.text-muted {
+    color: var(--secondary-blue) !important;
+}
+
+/* Navbar */
+.navbar-dark .navbar-brand {
+    color: var(--white) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--white) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--light-blue) !important;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-blue) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .impact-stats {
+        font-size: 1rem;
+    }
+    
+    .impact-stat {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem 1rem;
+    }
+    
+    .testimonial-content {
+        padding: 2rem 0;
+    }
+}
