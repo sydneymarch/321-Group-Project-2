@@ -9,11 +9,19 @@
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 50%, var(--primary-blue) 100%);
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="waves" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0,50 Q25,0 50,50 T100,50 L100,100 L0,100 Z" fill="rgba(144,224,239,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23waves)"/></svg>');
-    background-size: 200px 200px;
     position: relative;
     min-height: 100vh;
+    overflow: hidden;
+}
+
+.hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
 }
 
 .hero-overlay {
@@ -22,7 +30,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(2, 62, 138, 0.3);
+    background: rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
 
@@ -31,13 +39,17 @@
     z-index: 2;
 }
 
+.hero-section .text-white {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
 /* Stat Cards */
 .stat-card {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 2rem 1rem;
-    border: 1px solid rgba(144, 224, 239, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.7);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -52,6 +64,7 @@
     line-height: 1;
     margin-bottom: 0.5rem;
     color: var(--light-blue) !important;
+    text-shadow: none !important;
 }
 
 .stat-label {
@@ -61,59 +74,18 @@
     color: var(--white);
 }
 
-/* Testimonial Section */
-.testimonial-section {
-    background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--primary-blue) 50%, var(--secondary-blue) 100%);
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="fish" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M40,10 Q60,30 40,50 Q20,30 40,10 M40,50 Q60,70 40,90 Q20,70 40,50" fill="rgba(144,224,239,0.05)" stroke="rgba(144,224,239,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23fish)"/></svg>');
-    background-size: 160px 160px;
-    position: relative;
-}
 
-.testimonial-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(2, 62, 138, 0.4);
-    z-index: 1;
-}
 
-.testimonial-section .container {
-    position: relative;
-    z-index: 2;
-}
-
-.testimonial-content {
-    padding: 3rem 0;
-}
-
-/* Impact Banner */
-.impact-stats {
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.impact-stat {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--white);
-}
-
-.impact-separator {
-    margin: 0 1rem;
-    opacity: 0.7;
-}
-
-.impact-label {
-    margin-left: 0.5rem;
-    opacity: 0.9;
-}
 
 /* Feature Icons */
 .feature-icon {
     text-align: center;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 }
 
 .feature-icon i {
@@ -124,10 +96,12 @@
 
 .feature-icon h5 {
     color: var(--primary-blue) !important;
+    margin-bottom: 1rem;
 }
 
 .feature-icon p {
     color: var(--secondary-blue) !important;
+    margin-bottom: 0;
 }
 
 /* Animations */

@@ -19,9 +19,7 @@ async function initializeStats() {
         animateCounter('activeFishers', stats.activeFishers, 2500);
         animateCounter('fairTradeValue', stats.fairTradeValue, 3000, '$');
         
-        // Update impact banner stats
-        updateImpactStats(stats);
-        
+
     } catch (error) {
         console.error('Error fetching stats:', error);
         // Fallback to default values
@@ -39,9 +37,6 @@ async function fetchStats() {
         verifiedCatches: 12842,
         activeFishers: 156,
         fairTradeValue: 187000,
-        impactCatches: 12842,
-        impactPayments: 187000,
-        impactRegions: 18
     };
     
     // Future API call will look like:
@@ -71,28 +66,11 @@ function animateCounter(elementId, targetValue, duration, prefix = '') {
     }, 16);
 }
 
-// Update impact banner stats
-function updateImpactStats(stats) {
-    const impactCatches = document.getElementById('impactCatches');
-    const impactPayments = document.getElementById('impactPayments');
-    const impactRegions = document.getElementById('impactRegions');
-    
-    if (impactCatches) impactCatches.textContent = stats.impactCatches.toLocaleString();
-    if (impactPayments) impactPayments.textContent = '$' + stats.impactPayments.toLocaleString();
-    if (impactRegions) impactRegions.textContent = stats.impactRegions;
-}
-
 // Set default stats if API fails
 function setDefaultStats() {
     animateCounter('verifiedCatches', 0, 1000);
     animateCounter('activeFishers', 0, 1000);
     animateCounter('fairTradeValue', 0, 1000, '$');
-    
-    updateImpactStats({
-        impactCatches: 0,
-        impactPayments: 0,
-        impactRegions: 0
-    });
 }
 
 // Problem Section - Scroll Animations
@@ -152,16 +130,6 @@ function initializeSmoothScrolling() {
             navbar.classList.remove('navbar-scrolled');
         }
     });
-}
-
-// Impact Banner - Real-time updates (placeholder)
-function updateImpactBanner() {
-    // This would connect to real-time data updates
-    // For now, just ensure the banner is visible and animated
-    const impactSection = document.getElementById('impact');
-    if (impactSection) {
-        impactSection.classList.add('animate__animated', 'animate__fadeInUp');
-    }
 }
 
 // Utility functions for future API integration
