@@ -55,3 +55,8 @@
 - Comment complex logic and API endpoints
 - Use meaningful commit messages
 - Keep functions and methods focused and single-purpose
+
+## Cursor Commands
+- Kill and start the API whenever affecting changes are made. Make sure to run command cd api before trying to start or kill.
+- API run command is dotnet run and API kill pkill "dotnet run" || true
+- To view project the .html path will be copied and pasted into a browser.
