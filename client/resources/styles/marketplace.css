@@ -1,0 +1,410 @@
+/* SeaTrue Marketplace Custom Styles */
+
+:root {
+    --primary-blue: #023e8a;
+    --secondary-blue: #0077b6;
+    --light-blue: #90e0ef;
+    --white: #ffffff;
+    --success-green: #28a745;
+    --warning-orange: #ffc107;
+}
+
+/* Marketplace Hero Section */
+.marketplace-hero {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Filters Section */
+.filters-section {
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Dropdown direction - force dropdowns to open downward */
+.form-select {
+    position: relative;
+}
+
+/* Ensure dropdowns open downward */
+select.form-select {
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+}
+
+/* Custom dropdown styling to ensure downward opening */
+.form-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(2, 62, 138, 0.25);
+}
+
+/* Override any upward dropdown behavior */
+.form-select option {
+    direction: ltr;
+    text-align: left;
+}
+
+/* Catch Card Styles */
+.catch-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.catch-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(2, 62, 138, 0.15);
+    border-color: var(--primary-blue);
+}
+
+.catch-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: #f8f9fa;
+}
+
+.catch-image-placeholder {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 3rem;
+}
+
+.catch-info {
+    padding: 1.5rem;
+}
+
+.catch-species {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+}
+
+.catch-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.catch-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.catch-detail i {
+    color: var(--primary-blue);
+}
+
+.catch-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--success-green);
+    margin-bottom: 1rem;
+}
+
+.catch-location {
+    color: var(--secondary-blue);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.catch-fisher {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.catch-date {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.catch-description {
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.catch-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-view-details {
+    flex: 1;
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--white);
+    font-weight: 500;
+}
+
+.btn-view-details:hover {
+    background-color: var(--secondary-blue);
+    border-color: var(--secondary-blue);
+    transform: translateY(-1px);
+}
+
+.btn-contact {
+    background-color: var(--success-green);
+    border-color: var(--success-green);
+    color: var(--white);
+    font-weight: 500;
+}
+
+.btn-contact:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-1px);
+}
+
+/* Modal Styles */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 500;
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(2, 62, 138, 0.25);
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-blue);
+    border-color: var(--secondary-blue);
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--white);
+}
+
+/* Loading and Empty States */
+#loadingState, #noResultsState {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Filter Styles */
+.input-group-text {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border-color: var(--primary-blue);
+}
+
+/* Sort dropdown styling */
+#sortBy {
+    background-color: var(--white);
+    border: 1px solid #ced4da;
+    color: var(--primary-blue);
+    font-weight: 500;
+}
+
+#sortBy:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(2, 62, 138, 0.25);
+}
+
+#sortBy option {
+    color: var(--primary-blue);
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .catch-details {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .catch-actions {
+        flex-direction: column;
+    }
+    
+    .marketplace-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .filters-section .row > div {
+        margin-bottom: 1rem;
+    }
+    
+    #sortBy {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .catch-card {
+        margin-bottom: 1rem;
+    }
+    
+    .catch-info {
+        padding: 1rem;
+    }
+    
+    .catch-species {
+        font-size: 1.1rem;
+    }
+    
+    .catch-price {
+        font-size: 1.25rem;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Status Badges */
+.status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-fresh {
+    background-color: var(--success-green);
+    color: var(--white);
+}
+
+.status-frozen {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+}
+
+.status-verified {
+    background-color: var(--warning-orange);
+    color: var(--white);
+}
+
+/* Price Highlight */
+.price-highlight {
+    background: linear-gradient(135deg, var(--success-green), #20c997);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-blue);
+}
