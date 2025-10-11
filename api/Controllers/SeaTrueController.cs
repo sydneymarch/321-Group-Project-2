@@ -1,265 +1,307 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace MyApp.Namespace
+namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class SeaTrueController : ControllerBase
     {
-        // In-memory storage for demonstration (replace with database in production)
-        private static List<Catch> _catches = new List<Catch>
-        {
-            new Catch
-            {
-                Id = 1,
-                Species = "Salmon",
-                Weight = 12.5,
-                Length = 28,
-                Price = 8.50,
-                Location = "Alaska",
-                CatchDate = "2024-01-15",
-                FisherName = "John Smith",
-                ContactEmail = "john@example.com",
-                Description = "Fresh Atlantic salmon caught in pristine Alaskan waters. Sustainably fished using traditional methods.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 2,
-                Species = "Tuna",
-                Weight = 45.2,
-                Length = 36,
-                Price = 12.00,
-                Location = "California",
-                CatchDate = "2024-01-14",
-                FisherName = "Maria Garcia",
-                ContactEmail = "maria@example.com",
-                Description = "Premium yellowfin tuna, caught fresh this morning. Perfect for sushi or sashimi.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 3,
-                Species = "Cod",
-                Weight = 8.7,
-                Length = 24,
-                Price = 6.75,
-                Location = "Maine",
-                CatchDate = "2024-01-13",
-                FisherName = "Bob Wilson",
-                ContactEmail = "bob@example.com",
-                Description = "Atlantic cod caught using sustainable fishing practices. Great for fish and chips or baking.",
-                Status = "frozen",
-                Verified = false
-            },
-            new Catch
-            {
-                Id = 4,
-                Species = "Halibut",
-                Weight = 22.3,
-                Length = 32,
-                Price = 15.25,
-                Location = "Alaska",
-                CatchDate = "2024-01-12",
-                FisherName = "Sarah Johnson",
-                ContactEmail = "sarah@example.com",
-                Description = "Large Pacific halibut, perfect for restaurants. Caught using longline fishing method.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 5,
-                Species = "Snapper",
-                Weight = 6.8,
-                Length = 20,
-                Price = 9.50,
-                Location = "Florida",
-                CatchDate = "2024-01-11",
-                FisherName = "Carlos Rodriguez",
-                ContactEmail = "carlos@example.com",
-                Description = "Red snapper caught in the Gulf of Mexico. Fresh and ready for cooking.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 6,
-                Species = "Salmon",
-                Weight = 15.2,
-                Length = 30,
-                Price = 9.25,
-                Location = "Washington",
-                CatchDate = "2024-01-10",
-                FisherName = "Mike Chen",
-                ContactEmail = "mike@example.com",
-                Description = "Pacific salmon from Washington waters. Fresh catch from this morning.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 7,
-                Species = "Lobster",
-                Weight = 2.1,
-                Length = 12,
-                Price = 18.50,
-                Location = "Maine",
-                CatchDate = "2024-01-09",
-                FisherName = "Lisa Anderson",
-                ContactEmail = "lisa@example.com",
-                Description = "Fresh Maine lobster, perfect for restaurants. Caught this morning.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 8,
-                Species = "Crab",
-                Weight = 3.5,
-                Length = 8,
-                Price = 14.75,
-                Location = "Oregon",
-                CatchDate = "2024-01-08",
-                FisherName = "David Kim",
-                ContactEmail = "david@example.com",
-                Description = "Dungeness crab from Oregon coast. Fresh and ready for cooking.",
-                Status = "fresh",
-                Verified = false
-            },
-            new Catch
-            {
-                Id = 9,
-                Species = "Tuna",
-                Weight = 38.7,
-                Length = 34,
-                Price = 11.50,
-                Location = "Hawaii",
-                CatchDate = "2024-01-07",
-                FisherName = "Keoni Nakamura",
-                ContactEmail = "keoni@example.com",
-                Description = "Bigeye tuna from Hawaiian waters. Premium quality for sushi.",
-                Status = "fresh",
-                Verified = true
-            },
-            new Catch
-            {
-                Id = 10,
-                Species = "Shrimp",
-                Weight = 1.2,
-                Length = 6,
-                Price = 22.00,
-                Location = "Louisiana",
-                CatchDate = "2024-01-06",
-                FisherName = "Pierre LeBlanc",
-                ContactEmail = "pierre@example.com",
-                Description = "Fresh Gulf shrimp from Louisiana. Perfect for seafood dishes.",
-                Status = "fresh",
-                Verified = true
-            }
-        };
+        private readonly string _connectionString = "Data Source=database.db";
 
         // GET: api/SeaTrue/catches
         [HttpGet("catches")]
-        public ActionResult<IEnumerable<Catch>> GetCatches()
+        public async Task<ActionResult<IEnumerable<CatchResponse>>> GetCatches()
         {
-            return Ok(_catches.OrderByDescending(c => c.CatchDate));
+            var catches = new List<CatchResponse>();
+
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var command = new SqliteCommand(@"
+                    SELECT 
+                        c.CatchID,
+                        s.CommonName as Species,
+                        c.WeightKG,
+                        c.AverageSizeCM,
+                        c.PricePerKG,
+                        fp.State as Location,
+                        c.CatchDate,
+                        u.FirstName || ' ' || u.LastName as FisherName,
+                        u.Email as ContactEmail,
+                        c.FishCondition as Status,
+                        c.IsAIVerified,
+                        c.IsAdminVerified,
+                        c.IsAvailable,
+                        c.StorageMethod,
+                        c.AIConfidenceScore,
+                        c.LandingPort,
+                        s.ScientificName,
+                        s.ConservationStatus
+                    FROM CatchRecord c
+                    INNER JOIN FisherProfile fp ON c.FisherID = fp.FisherID
+                    INNER JOIN User u ON fp.UserID = u.UserID
+                    INNER JOIN Species s ON c.SpeciesID = s.SpeciesID
+                    WHERE c.IsAvailable = 1
+                    AND fp.CertificationStatus IN ('Certified', 'PreVerified')
+                    ORDER BY c.CatchDate DESC
+                ", connection);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        // Convert weight from KG to lbs (1 kg = 2.20462 lbs)
+                        var weightLbs = reader.GetDouble(2) * 2.20462;
+                        // Convert size from CM to inches (1 cm = 0.393701 inches)
+                        var lengthInches = reader.IsDBNull(3) ? 0 : reader.GetDouble(3) * 0.393701;
+                        // Convert price from per KG to per lb
+                        var pricePerLb = reader.IsDBNull(4) ? 0 : reader.GetDouble(4) / 2.20462;
+
+                        catches.Add(new CatchResponse
+                        {
+                            Id = reader.GetInt32(0),
+                            Species = reader.GetString(1),
+                            Weight = Math.Round(weightLbs, 2),
+                            Length = Math.Round(lengthInches, 2),
+                            Price = Math.Round(pricePerLb, 2),
+                            Location = reader.IsDBNull(5) ? "Unknown" : reader.GetString(5),
+                            CatchDate = reader.GetString(6),
+                            FisherName = reader.GetString(7),
+                            ContactEmail = reader.GetString(8),
+                            Status = reader.IsDBNull(9) ? "fresh" : reader.GetString(9).ToLower(),
+                            Verified = reader.GetBoolean(10) || reader.GetBoolean(11),
+                            StorageMethod = reader.IsDBNull(13) ? "" : reader.GetString(13),
+                            AIConfidenceScore = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
+                            LandingPort = reader.IsDBNull(15) ? "" : reader.GetString(15),
+                            ScientificName = reader.IsDBNull(16) ? "" : reader.GetString(16),
+                            ConservationStatus = reader.IsDBNull(17) ? "" : reader.GetString(17),
+                            Description = $"{reader.GetString(1)} caught at {(reader.IsDBNull(15) ? "sea" : reader.GetString(15))}. Conservation Status: {(reader.IsDBNull(17) ? "Unknown" : reader.GetString(17))}. {(reader.IsDBNull(13) ? "" : "Storage: " + reader.GetString(13) + ".")}"
+                        });
+                    }
+                }
+            }
+
+            return Ok(catches);
         }
 
         // GET: api/SeaTrue/catches/{id}
         [HttpGet("catches/{id}")]
-        public ActionResult<Catch> GetCatch(int id)
+        public async Task<ActionResult<CatchResponse>> GetCatch(int id)
         {
-            var catchItem = _catches.FirstOrDefault(c => c.Id == id);
-            if (catchItem == null)
+            using (var connection = new SqliteConnection(_connectionString))
             {
-                return NotFound();
+                await connection.OpenAsync();
+
+                var command = new SqliteCommand(@"
+                    SELECT 
+                        c.CatchID,
+                        s.CommonName as Species,
+                        c.WeightKG,
+                        c.AverageSizeCM,
+                        c.PricePerKG,
+                        fp.State as Location,
+                        c.CatchDate,
+                        u.FirstName || ' ' || u.LastName as FisherName,
+                        u.Email as ContactEmail,
+                        c.FishCondition as Status,
+                        c.IsAIVerified,
+                        c.IsAdminVerified,
+                        c.IsAvailable,
+                        c.StorageMethod,
+                        c.AIConfidenceScore,
+                        c.LandingPort,
+                        s.ScientificName,
+                        s.ConservationStatus
+                    FROM CatchRecord c
+                    INNER JOIN FisherProfile fp ON c.FisherID = fp.FisherID
+                    INNER JOIN User u ON fp.UserID = u.UserID
+                    INNER JOIN Species s ON c.SpeciesID = s.SpeciesID
+                    WHERE c.CatchID = @id
+                ", connection);
+
+                command.Parameters.AddWithValue("@id", id);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        var weightLbs = reader.GetDouble(2) * 2.20462;
+                        var lengthInches = reader.IsDBNull(3) ? 0 : reader.GetDouble(3) * 0.393701;
+                        var pricePerLb = reader.IsDBNull(4) ? 0 : reader.GetDouble(4) / 2.20462;
+
+                        var catchResponse = new CatchResponse
+                        {
+                            Id = reader.GetInt32(0),
+                            Species = reader.GetString(1),
+                            Weight = Math.Round(weightLbs, 2),
+                            Length = Math.Round(lengthInches, 2),
+                            Price = Math.Round(pricePerLb, 2),
+                            Location = reader.IsDBNull(5) ? "Unknown" : reader.GetString(5),
+                            CatchDate = reader.GetString(6),
+                            FisherName = reader.GetString(7),
+                            ContactEmail = reader.GetString(8),
+                            Status = reader.IsDBNull(9) ? "fresh" : reader.GetString(9).ToLower(),
+                            Verified = reader.GetBoolean(10) || reader.GetBoolean(11),
+                            StorageMethod = reader.IsDBNull(13) ? "" : reader.GetString(13),
+                            AIConfidenceScore = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
+                            LandingPort = reader.IsDBNull(15) ? "" : reader.GetString(15),
+                            ScientificName = reader.IsDBNull(16) ? "" : reader.GetString(16),
+                            ConservationStatus = reader.IsDBNull(17) ? "" : reader.GetString(17),
+                            Description = $"{reader.GetString(1)} caught at {(reader.IsDBNull(15) ? "sea" : reader.GetString(15))}. Conservation Status: {(reader.IsDBNull(17) ? "Unknown" : reader.GetString(17))}. {(reader.IsDBNull(13) ? "" : "Storage: " + reader.GetString(13) + ".")}"
+                        };
+
+                        return Ok(catchResponse);
+                    }
+                }
             }
-            return Ok(catchItem);
+
+            return NotFound();
         }
 
-        // POST: api/SeaTrue/catches
-        [HttpPost("catches")]
-        public ActionResult<Catch> CreateCatch([FromBody] CreateCatchRequest request)
+        // GET: api/SeaTrue/species
+        [HttpGet("species")]
+        public async Task<ActionResult<IEnumerable<string>>> GetSpecies()
         {
-            if (!ModelState.IsValid)
+            var species = new List<string>();
+
+            using (var connection = new SqliteConnection(_connectionString))
             {
-                return BadRequest(ModelState);
+                await connection.OpenAsync();
+
+                var command = new SqliteCommand(@"
+                    SELECT DISTINCT s.CommonName
+                    FROM Species s
+                    INNER JOIN CatchRecord c ON s.SpeciesID = c.SpeciesID
+                    WHERE c.IsAvailable = 1
+                    ORDER BY s.CommonName
+                ", connection);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        species.Add(reader.GetString(0));
+                    }
+                }
             }
 
-            var newCatch = new Catch
-            {
-                Id = _catches.Count > 0 ? _catches.Max(c => c.Id) + 1 : 1,
-                Species = request.Species,
-                Weight = request.Weight,
-                Length = request.Length,
-                Price = request.Price,
-                Location = request.Location,
-                CatchDate = request.CatchDate,
-                FisherName = request.FisherName,
-                ContactEmail = request.ContactEmail,
-                Description = request.Description,
-                Status = "fresh",
-                Verified = false
-            };
-
-            _catches.Add(newCatch);
-            return CreatedAtAction(nameof(GetCatch), new { id = newCatch.Id }, newCatch);
+            return Ok(species);
         }
 
-        // PUT: api/SeaTrue/catches/{id}
-        [HttpPut("catches/{id}")]
-        public IActionResult UpdateCatch(int id, [FromBody] UpdateCatchRequest request)
+        // GET: api/SeaTrue/locations
+        [HttpGet("locations")]
+        public async Task<ActionResult<IEnumerable<string>>> GetLocations()
         {
-            var catchItem = _catches.FirstOrDefault(c => c.Id == id);
-            if (catchItem == null)
+            var locations = new List<string>();
+
+            using (var connection = new SqliteConnection(_connectionString))
             {
-                return NotFound();
+                await connection.OpenAsync();
+
+                var command = new SqliteCommand(@"
+                    SELECT DISTINCT fp.State
+                    FROM FisherProfile fp
+                    INNER JOIN CatchRecord c ON fp.FisherID = c.FisherID
+                    WHERE c.IsAvailable = 1 AND fp.State IS NOT NULL AND fp.State != ''
+                    ORDER BY fp.State
+                ", connection);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        locations.Add(reader.GetString(0));
+                    }
+                }
             }
 
-            catchItem.Species = request.Species;
-            catchItem.Weight = request.Weight;
-            catchItem.Length = request.Length;
-            catchItem.Price = request.Price;
-            catchItem.Location = request.Location;
-            catchItem.CatchDate = request.CatchDate;
-            catchItem.FisherName = request.FisherName;
-            catchItem.ContactEmail = request.ContactEmail;
-            catchItem.Description = request.Description;
-            catchItem.Status = request.Status;
-
-            return NoContent();
+            return Ok(locations);
         }
 
-        // DELETE: api/SeaTrue/catches/{id}
-        [HttpDelete("catches/{id}")]
-        public IActionResult DeleteCatch(int id)
+        // POST: api/SeaTrue/catches/{id}/claim
+        [HttpPost("catches/{id}/claim")]
+        public async Task<IActionResult> ClaimPurchase(int id, [FromBody] ClaimPurchaseRequest request)
         {
-            var catchItem = _catches.FirstOrDefault(c => c.Id == id);
-            if (catchItem == null)
+            using (var connection = new SqliteConnection(_connectionString))
             {
-                return NotFound();
-            }
+                await connection.OpenAsync();
 
-            _catches.Remove(catchItem);
-            return NoContent();
+                // Start transaction
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Check if catch is still available
+                        var checkCommand = new SqliteCommand(@"
+                            SELECT IsAvailable, FisherID, WeightKG, PricePerKG
+                            FROM CatchRecord
+                            WHERE CatchID = @id
+                        ", connection, transaction);
+                        checkCommand.Parameters.AddWithValue("@id", id);
+
+                        bool isAvailable;
+                        int fisherID;
+                        double weightKG;
+                        double pricePerKG;
+
+                        using (var reader = await checkCommand.ExecuteReaderAsync())
+                        {
+                            if (!await reader.ReadAsync())
+                            {
+                                return NotFound(new { message = "Catch not found" });
+                            }
+
+                            isAvailable = reader.GetBoolean(0);
+                            fisherID = reader.GetInt32(1);
+                            weightKG = reader.GetDouble(2);
+                            pricePerKG = reader.GetDouble(3);
+                        }
+
+                        if (!isAvailable)
+                        {
+                            return BadRequest(new { message = "This catch is no longer available" });
+                        }
+
+                        // Mark catch as unavailable
+                        var updateCommand = new SqliteCommand(@"
+                            UPDATE CatchRecord
+                            SET IsAvailable = 0
+                            WHERE CatchID = @id
+                        ", connection, transaction);
+                        updateCommand.Parameters.AddWithValue("@id", id);
+                        await updateCommand.ExecuteNonQueryAsync();
+
+                        // Create order record (requires buyer ID - for now we'll skip this part)
+                        // In a real app, you would get the buyer ID from authentication
+
+                        transaction.Commit();
+
+                        return Ok(new
+                        {
+                            message = "Purchase claimed successfully!",
+                            catchId = id,
+                            totalPrice = Math.Round(weightKG * pricePerKG, 2)
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return StatusCode(500, new { message = "Error processing claim", error = ex.Message });
+                    }
+                }
+            }
         }
 
         // POST: api/SeaTrue/catches/{id}/contact
         [HttpPost("catches/{id}/contact")]
         public IActionResult ContactFisher(int id, [FromBody] ContactRequest request)
         {
-            var catchItem = _catches.FirstOrDefault(c => c.Id == id);
-            if (catchItem == null)
-            {
-                return NotFound();
-            }
-
             // In a real application, this would send an email or notification
             // For now, we'll just return success
             return Ok(new { message = "Contact request sent successfully" });
@@ -267,22 +309,45 @@ namespace MyApp.Namespace
 
         // GET: api/SeaTrue/stats
         [HttpGet("stats")]
-        public ActionResult<object> GetStats()
+        public async Task<ActionResult<object>> GetStats()
         {
-            var stats = new
+            using (var connection = new SqliteConnection(_connectionString))
             {
-                TotalCatches = _catches.Count,
-                VerifiedCatches = _catches.Count(c => c.Verified),
-                ActiveFishers = _catches.Select(c => c.FisherName).Distinct().Count(),
-                TotalValue = _catches.Sum(c => c.Weight * c.Price)
-            };
+                await connection.OpenAsync();
 
-            return Ok(stats);
+                var command = new SqliteCommand(@"
+                    SELECT 
+                        COUNT(*) as TotalCatches,
+                        SUM(CASE WHEN IsAIVerified = 1 OR IsAdminVerified = 1 THEN 1 ELSE 0 END) as VerifiedCatches,
+                        COUNT(DISTINCT FisherID) as ActiveFishers,
+                        SUM(WeightKG * PricePerKG) as TotalValue
+                    FROM CatchRecord
+                    WHERE IsAvailable = 1
+                ", connection);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        var stats = new
+                        {
+                            TotalCatches = reader.GetInt32(0),
+                            VerifiedCatches = reader.GetInt32(1),
+                            ActiveFishers = reader.GetInt32(2),
+                            TotalValue = reader.IsDBNull(3) ? 0 : Math.Round(reader.GetDouble(3), 2)
+                        };
+
+                        return Ok(stats);
+                    }
+                }
+            }
+
+            return Ok(new { TotalCatches = 0, VerifiedCatches = 0, ActiveFishers = 0, TotalValue = 0 });
         }
     }
 
     // Data models
-    public class Catch
+    public class CatchResponse
     {
         public int Id { get; set; }
         public string Species { get; set; } = string.Empty;
@@ -296,39 +361,21 @@ namespace MyApp.Namespace
         public string Description { get; set; } = string.Empty;
         public string Status { get; set; } = "fresh";
         public bool Verified { get; set; }
+        public string StorageMethod { get; set; } = string.Empty;
+        public double AIConfidenceScore { get; set; }
+        public string LandingPort { get; set; } = string.Empty;
+        public string ScientificName { get; set; } = string.Empty;
+        public string ConservationStatus { get; set; } = string.Empty;
     }
 
-    public class CreateCatchRequest
+    public class ClaimPurchaseRequest
     {
-        public string Species { get; set; } = string.Empty;
-        public double Weight { get; set; }
-        public double Length { get; set; }
-        public double Price { get; set; }
-        public string Location { get; set; } = string.Empty;
-        public string CatchDate { get; set; } = string.Empty;
-        public string FisherName { get; set; } = string.Empty;
-        public string ContactEmail { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-    }
-
-    public class UpdateCatchRequest
-    {
-        public string Species { get; set; } = string.Empty;
-        public double Weight { get; set; }
-        public double Length { get; set; }
-        public double Price { get; set; }
-        public string Location { get; set; } = string.Empty;
-        public string CatchDate { get; set; } = string.Empty;
-        public string FisherName { get; set; } = string.Empty;
-        public string ContactEmail { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
+        public string BuyerEmail { get; set; } = string.Empty;
+        public string BuyerName { get; set; } = string.Empty;
     }
 
     public class ContactRequest
     {
         public string Message { get; set; } = string.Empty;
-        public string BuyerName { get; set; } = string.Empty;
-        public string BuyerEmail { get; set; } = string.Empty;
     }
 }

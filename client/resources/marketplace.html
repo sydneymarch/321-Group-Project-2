@@ -30,6 +30,12 @@
                         <a class="nav-link nav-button" href="homepage.html">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link nav-button" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-button" href="learn.html">Learn</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link nav-button active" href="marketplace.html">Marketplace</a>
                     </li>
                     <li class="nav-item">
@@ -75,68 +81,13 @@
                 <div class="col-md-2 mb-3 mb-md-0">
                     <select class="form-select" id="speciesFilter">
                         <option value="">All Species</option>
-                        <option value="salmon">Salmon</option>
-                        <option value="tuna">Tuna</option>
-                        <option value="cod">Cod</option>
-                        <option value="halibut">Halibut</option>
-                        <option value="snapper">Snapper</option>
-                        <option value="other">Other</option>
+                        <!-- Dynamically loaded from database -->
                     </select>
                 </div>
                 <div class="col-md-2 mb-3 mb-md-0">
                     <select class="form-select" id="locationFilter">
                         <option value="">All States</option>
-                        <option value="Alabama">Alabama</option>
-                        <option value="Alaska">Alaska</option>
-                        <option value="Arizona">Arizona</option>
-                        <option value="Arkansas">Arkansas</option>
-                        <option value="California">California</option>
-                        <option value="Colorado">Colorado</option>
-                        <option value="Connecticut">Connecticut</option>
-                        <option value="Delaware">Delaware</option>
-                        <option value="Florida">Florida</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Hawaii">Hawaii</option>
-                        <option value="Idaho">Idaho</option>
-                        <option value="Illinois">Illinois</option>
-                        <option value="Indiana">Indiana</option>
-                        <option value="Iowa">Iowa</option>
-                        <option value="Kansas">Kansas</option>
-                        <option value="Kentucky">Kentucky</option>
-                        <option value="Louisiana">Louisiana</option>
-                        <option value="Maine">Maine</option>
-                        <option value="Maryland">Maryland</option>
-                        <option value="Massachusetts">Massachusetts</option>
-                        <option value="Michigan">Michigan</option>
-                        <option value="Minnesota">Minnesota</option>
-                        <option value="Mississippi">Mississippi</option>
-                        <option value="Missouri">Missouri</option>
-                        <option value="Montana">Montana</option>
-                        <option value="Nebraska">Nebraska</option>
-                        <option value="Nevada">Nevada</option>
-                        <option value="New Hampshire">New Hampshire</option>
-                        <option value="New Jersey">New Jersey</option>
-                        <option value="New Mexico">New Mexico</option>
-                        <option value="New York">New York</option>
-                        <option value="North Carolina">North Carolina</option>
-                        <option value="North Dakota">North Dakota</option>
-                        <option value="Ohio">Ohio</option>
-                        <option value="Oklahoma">Oklahoma</option>
-                        <option value="Oregon">Oregon</option>
-                        <option value="Pennsylvania">Pennsylvania</option>
-                        <option value="Rhode Island">Rhode Island</option>
-                        <option value="South Carolina">South Carolina</option>
-                        <option value="South Dakota">South Dakota</option>
-                        <option value="Tennessee">Tennessee</option>
-                        <option value="Texas">Texas</option>
-                        <option value="Utah">Utah</option>
-                        <option value="Vermont">Vermont</option>
-                        <option value="Virginia">Virginia</option>
-                        <option value="Washington">Washington</option>
-                        <option value="West Virginia">West Virginia</option>
-                        <option value="Wisconsin">Wisconsin</option>
-                        <option value="Wyoming">Wyoming</option>
-                        <option value="Other">Other</option>
+                        <!-- Dynamically loaded from database -->
                     </select>
                 </div>
                 <div class="col-md-2 mb-3 mb-md-0">
@@ -195,99 +146,6 @@
         </div>
     </section>
 
-    <!-- Upload Catch Modal -->
-    <div class="modal fade" id="uploadCatchModal" tabindex="-1" aria-labelledby="uploadCatchModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="uploadCatchModalLabel">
-                        <i class="bi bi-upload me-2"></i>Upload Your Catch
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="uploadCatchForm" enctype="multipart/form-data">
-                        <div class="row">
-                            <!-- Catch Image -->
-                            <div class="col-md-6 mb-3">
-                                <label for="catchImage" class="form-label">Catch Photo</label>
-                                <input type="file" class="form-control" id="catchImage" accept="image/*" required>
-                                <div class="form-text">Upload a clear photo of your catch</div>
-                            </div>
-
-                            <!-- Species -->
-                            <div class="col-md-6 mb-3">
-                                <label for="species" class="form-label">Species</label>
-                                <select class="form-select" id="species" required>
-                                    <option value="">Select species</option>
-                                    <option value="salmon">Salmon</option>
-                                    <option value="tuna">Tuna</option>
-                                    <option value="cod">Cod</option>
-                                    <option value="halibut">Halibut</option>
-                                    <option value="snapper">Snapper</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-
-                            <!-- Weight -->
-                            <div class="col-md-4 mb-3">
-                                <label for="weight" class="form-label">Weight (lbs)</label>
-                                <input type="number" class="form-control" id="weight" step="0.1" min="0" required>
-                            </div>
-
-                            <!-- Size -->
-                            <div class="col-md-4 mb-3">
-                                <label for="length" class="form-label">Length (inches)</label>
-                                <input type="number" class="form-control" id="length" step="0.1" min="0" required>
-                            </div>
-
-                            <!-- Price -->
-                            <div class="col-md-4 mb-3">
-                                <label for="price" class="form-label">Price per lb ($)</label>
-                                <input type="number" class="form-control" id="price" step="0.01" min="0" required>
-                            </div>
-
-                            <!-- Location -->
-                            <div class="col-md-6 mb-3">
-                                <label for="location" class="form-label">Catch Location</label>
-                                <input type="text" class="form-control" id="location" placeholder="e.g., Alaska, Gulf of Mexico" required>
-                            </div>
-
-                            <!-- Catch Date -->
-                            <div class="col-md-6 mb-3">
-                                <label for="catchDate" class="form-label">Catch Date</label>
-                                <input type="date" class="form-control" id="catchDate" required>
-                            </div>
-
-                            <!-- Description -->
-                            <div class="col-12 mb-3">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" rows="3" placeholder="Describe your catch, fishing method, freshness, etc."></textarea>
-                            </div>
-
-                            <!-- Contact Info -->
-                            <div class="col-md-6 mb-3">
-                                <label for="fisherName" class="form-label">Your Name</label>
-                                <input type="text" class="form-control" id="fisherName" required>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="contactEmail" class="form-label">Contact Email</label>
-                                <input type="email" class="form-control" id="contactEmail" required>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="submitCatch">
-                        <i class="bi bi-check-circle me-2"></i>Upload Catch
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Catch Details Modal -->
     <div class="modal fade" id="catchDetailsModal" tabindex="-1" aria-labelledby="catchDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -301,6 +159,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="claimPurchase">
+                        <i class="bi bi-cart-check me-2"></i>Claim Purchase
+                    </button>
                     <button type="button" class="btn btn-primary" id="contactFisher">
                         <i class="bi bi-envelope me-2"></i>Contact Fisher
                     </button>

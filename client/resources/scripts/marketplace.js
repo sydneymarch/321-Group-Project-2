@@ -1,11 +1,10 @@
 // SeaTrue Marketplace JavaScript
-// Handles catch upload, display, filtering, and API interactions
+// Handles catch display, filtering, and API interactions for buyers
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize marketplace functionality
     initializeMarketplace();
     initializeFilters();
-    initializeUploadForm();
     initializeModals();
 });
 
@@ -13,12 +12,17 @@ document.addEventListener('DOMContentLoaded', function() {
 let allCatches = [];
 let filteredCatches = [];
 let currentCatchId = null;
+const API_BASE_URL = 'http://localhost:5142/api/SeaTrue';
 
 // Initialize marketplace
 async function initializeMarketplace() {
     try {
         showLoadingState();
-        await loadCatches();
+        await Promise.all([
+            loadCatches(),
+            loadSpeciesFilters(),
+            loadLocationFilters()
+        ]);
         hideLoadingState();
         displayCatches(filteredCatches);
     } catch (error) {
@@ -30,184 +34,65 @@ async function initializeMarketplace() {
 // Load catches from API
 async function loadCatches() {
     try {
-        // Try to fetch from real API first
-        const response = await fetch('/api/SeaTrue/catches');
+        const response = await fetch(`${API_BASE_URL}/catches`);
         if (response.ok) {
             allCatches = await response.json();
             filteredCatches = [...allCatches];
         } else {
-            // Fallback to mock data if API is not available
-            console.warn('API not available, using mock data');
-            const mockCatches = await fetchMockCatches();
-            allCatches = mockCatches;
-            filteredCatches = [...allCatches];
+            throw new Error('Failed to load catches');
         }
     } catch (error) {
         console.error('Error loading catches:', error);
-        // Fallback to mock data
-        const mockCatches = await fetchMockCatches();
-        allCatches = mockCatches;
-        filteredCatches = [...allCatches];
+        throw error;
     }
 }
 
-// Mock data for demonstration
-async function fetchMockCatches() {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return [
-        {
-            id: 1,
-            species: 'Salmon',
-            weight: 12.5,
-            length: 28,
-            price: 8.50,
-            location: 'Alaska',
-            catchDate: '2024-01-15',
-            fisherName: 'John Smith',
-            contactEmail: 'john@example.com',
-            description: 'Fresh Atlantic salmon caught in pristine Alaskan waters. Sustainably fished using traditional methods.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 2,
-            species: 'Tuna',
-            weight: 45.2,
-            length: 36,
-            price: 12.00,
-            location: 'California',
-            catchDate: '2024-01-14',
-            fisherName: 'Maria Garcia',
-            contactEmail: 'maria@example.com',
-            description: 'Premium yellowfin tuna, caught fresh this morning. Perfect for sushi or sashimi.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 3,
-            species: 'Cod',
-            weight: 8.7,
-            length: 24,
-            price: 6.75,
-            location: 'Maine',
-            catchDate: '2024-01-13',
-            fisherName: 'Bob Wilson',
-            contactEmail: 'bob@example.com',
-            description: 'Atlantic cod caught using sustainable fishing practices. Great for fish and chips or baking.',
-            imageUrl: null,
-            status: 'frozen',
-            verified: false
-        },
-        {
-            id: 4,
-            species: 'Halibut',
-            weight: 22.3,
-            length: 32,
-            price: 15.25,
-            location: 'Alaska',
-            catchDate: '2024-01-12',
-            fisherName: 'Sarah Johnson',
-            contactEmail: 'sarah@example.com',
-            description: 'Large Pacific halibut, perfect for restaurants. Caught using longline fishing method.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 5,
-            species: 'Snapper',
-            weight: 6.8,
-            length: 20,
-            price: 9.50,
-            location: 'Florida',
-            catchDate: '2024-01-11',
-            fisherName: 'Carlos Rodriguez',
-            contactEmail: 'carlos@example.com',
-            description: 'Red snapper caught in the Gulf of Mexico. Fresh and ready for cooking.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 6,
-            species: 'Salmon',
-            weight: 15.2,
-            length: 30,
-            price: 9.25,
-            location: 'Washington',
-            catchDate: '2024-01-10',
-            fisherName: 'Mike Chen',
-            contactEmail: 'mike@example.com',
-            description: 'Pacific salmon from Washington waters. Fresh catch from this morning.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 7,
-            species: 'Lobster',
-            weight: 2.1,
-            length: 12,
-            price: 18.50,
-            location: 'Maine',
-            catchDate: '2024-01-09',
-            fisherName: 'Lisa Anderson',
-            contactEmail: 'lisa@example.com',
-            description: 'Fresh Maine lobster, perfect for restaurants. Caught this morning.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 8,
-            species: 'Crab',
-            weight: 3.5,
-            length: 8,
-            price: 14.75,
-            location: 'Oregon',
-            catchDate: '2024-01-08',
-            fisherName: 'David Kim',
-            contactEmail: 'david@example.com',
-            description: 'Dungeness crab from Oregon coast. Fresh and ready for cooking.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: false
-        },
-        {
-            id: 9,
-            species: 'Tuna',
-            weight: 38.7,
-            length: 34,
-            price: 11.50,
-            location: 'Hawaii',
-            catchDate: '2024-01-07',
-            fisherName: 'Keoni Nakamura',
-            contactEmail: 'keoni@example.com',
-            description: 'Bigeye tuna from Hawaiian waters. Premium quality for sushi.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
-        },
-        {
-            id: 10,
-            species: 'Shrimp',
-            weight: 1.2,
-            length: 6,
-            price: 22.00,
-            location: 'Louisiana',
-            catchDate: '2024-01-06',
-            fisherName: 'Pierre LeBlanc',
-            contactEmail: 'pierre@example.com',
-            description: 'Fresh Gulf shrimp from Louisiana. Perfect for seafood dishes.',
-            imageUrl: null,
-            status: 'fresh',
-            verified: true
+// Load species filters from API
+async function loadSpeciesFilters() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/species`);
+        if (response.ok) {
+            const species = await response.json();
+            const speciesFilter = document.getElementById('speciesFilter');
+            
+            // Clear existing options except the first one
+            speciesFilter.innerHTML = '<option value="">All Species</option>';
+            
+            // Add species options
+            species.forEach(sp => {
+                const option = document.createElement('option');
+                option.value = sp.toLowerCase();
+                option.textContent = sp;
+                speciesFilter.appendChild(option);
+            });
         }
-    ];
+    } catch (error) {
+        console.error('Error loading species:', error);
+    }
+}
+
+// Load location filters from API
+async function loadLocationFilters() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/locations`);
+        if (response.ok) {
+            const locations = await response.json();
+            const locationFilter = document.getElementById('locationFilter');
+            
+            // Clear existing options except the first one
+            locationFilter.innerHTML = '<option value="">All States</option>';
+            
+            // Add location options
+            locations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc;
+                option.textContent = loc;
+                locationFilter.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading locations:', error);
+    }
 }
 
 // Display catches in grid
@@ -221,7 +106,7 @@ function displayCatches(catches) {
     
     hideNoResultsState();
     
-    grid.innerHTML = catches.map(catch => createCatchCard(catch)).join('');
+    grid.innerHTML = catches.map(catchItem => createCatchCard(catchItem)).join('');
     
     // Add click handlers to cards
     document.querySelectorAll('.catch-card').forEach(card => {
@@ -235,34 +120,38 @@ function displayCatches(catches) {
 // Create catch card HTML
 function createCatchCard(catchData) {
     const statusClass = catchData.status === 'fresh' ? 'status-fresh' : 
-                       catchData.status === 'frozen' ? 'status-frozen' : 'status-verified';
+                       catchData.status === 'frozen' ? 'status-frozen' : 'status-fresh';
     
     const statusText = catchData.status === 'fresh' ? 'Fresh' : 
-                      catchData.status === 'frozen' ? 'Frozen' : 'Verified';
+                      catchData.status === 'frozen' ? 'Frozen' : 'Fresh';
+    
+    const verifiedBadge = catchData.verified ? 
+        '<span class="status-badge status-verified ms-2">Verified</span>' : '';
     
     return `
         <div class="col-lg-4 col-md-6">
             <div class="catch-card fade-in" data-catch-id="${catchData.id}">
                 <div class="position-relative">
-                    ${catchData.imageUrl ? 
-                        `<img src="${catchData.imageUrl}" alt="${catchData.species}" class="catch-image">` :
-                        `<div class="catch-image-placeholder">
-                            <i class="bi bi-fish"></i>
-                        </div>`
-                    }
+                    <div class="catch-image-placeholder">
+                        <i class="bi bi-fish"></i>
+                    </div>
                     <span class="status-badge ${statusClass}">${statusText}</span>
+                    ${verifiedBadge}
                 </div>
                 <div class="catch-info">
                     <h5 class="catch-species">${catchData.species}</h5>
+                    ${catchData.scientificName ? `<p class="text-muted small fst-italic mb-2">${catchData.scientificName}</p>` : ''}
+                    ${catchData.conservationStatus ? `<p class="badge bg-info text-dark mb-2">${catchData.conservationStatus}</p>` : ''}
                     <div class="catch-details">
                         <div class="catch-detail">
                             <i class="bi bi-speedometer2"></i>
                             <span>${catchData.weight} lbs</span>
                         </div>
+                        ${catchData.length > 0 ? `
                         <div class="catch-detail">
                             <i class="bi bi-rulers"></i>
                             <span>${catchData.length}"</span>
-                        </div>
+                        </div>` : ''}
                         <div class="catch-detail">
                             <i class="bi bi-geo-alt"></i>
                             <span>${catchData.location}</span>
@@ -271,7 +160,7 @@ function createCatchCard(catchData) {
                     <div class="catch-price">$${catchData.price.toFixed(2)}/lb</div>
                     <div class="catch-fisher">Fisher: ${catchData.fisherName}</div>
                     <div class="catch-date">Caught: ${formatDate(catchData.catchDate)}</div>
-                    <div class="catch-description">${catchData.description}</div>
+                    ${catchData.description ? `<div class="catch-description">${catchData.description}</div>` : ''}
                     <div class="catch-actions">
                         <button class="btn btn-view-details" onclick="event.stopPropagation(); showCatchDetails(${catchData.id})">
                             <i class="bi bi-eye me-1"></i>View Details
@@ -308,33 +197,33 @@ function initializeFilters() {
 function applyFilters() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const speciesFilter = document.getElementById('speciesFilter').value.toLowerCase();
-    const locationFilter = document.getElementById('locationFilter').value.toLowerCase();
+    const locationFilter = document.getElementById('locationFilter').value;
     const priceFilter = document.getElementById('priceFilter').value;
     
-    filteredCatches = allCatches.filter(catch => {
+    filteredCatches = allCatches.filter(catchItem => {
         // Search filter
         const matchesSearch = !searchTerm || 
-            catch.species.toLowerCase().includes(searchTerm) ||
-            catch.location.toLowerCase().includes(searchTerm) ||
-            catch.fisherName.toLowerCase().includes(searchTerm) ||
-            catch.description.toLowerCase().includes(searchTerm);
+            catchItem.species.toLowerCase().includes(searchTerm) ||
+            catchItem.location.toLowerCase().includes(searchTerm) ||
+            catchItem.fisherName.toLowerCase().includes(searchTerm) ||
+            (catchItem.description && catchItem.description.toLowerCase().includes(searchTerm));
         
         // Species filter
         const matchesSpecies = !speciesFilter || 
-            catch.species.toLowerCase() === speciesFilter;
+            catchItem.species.toLowerCase() === speciesFilter;
         
         // Location filter - exact state match
         const matchesLocation = !locationFilter || 
-            catch.location === locationFilter;
+            catchItem.location === locationFilter;
         
         // Price filter
         let matchesPrice = true;
         if (priceFilter) {
             const [min, max] = priceFilter.split('-').map(p => parseFloat(p));
             if (max) {
-                matchesPrice = catch.price >= min && catch.price <= max;
+                matchesPrice = catchItem.price >= min && catchItem.price <= max;
             } else {
-                matchesPrice = catch.price >= min;
+                matchesPrice = catchItem.price >= min;
             }
         }
         
@@ -367,8 +256,7 @@ function applySorting() {
     const sortBy = document.getElementById('sortBy').value;
     
     if (!sortBy) {
-        // No sorting selected, just apply current filters
-        applyFilters();
+        displayCatches(filteredCatches);
         return;
     }
     
@@ -402,104 +290,21 @@ function applySorting() {
     displayCatches(sortedCatches);
 }
 
-// Initialize upload form
-function initializeUploadForm() {
-    const submitButton = document.getElementById('submitCatch');
-    submitButton.addEventListener('click', handleCatchUpload);
-    
-    // Set today's date as default
-    document.getElementById('catchDate').value = new Date().toISOString().split('T')[0];
-}
-
-// Handle catch upload
-async function handleCatchUpload() {
-    const form = document.getElementById('uploadCatchForm');
-    const formData = new FormData(form);
-    
-    // Validate form
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-    
-    try {
-        // Show loading state
-        const submitButton = document.getElementById('submitCatch');
-        const originalText = submitButton.innerHTML;
-        submitButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Uploading...';
-        submitButton.disabled = true;
-        
-        // Create catch object
-        const newCatch = {
-            species: document.getElementById('species').value,
-            weight: parseFloat(document.getElementById('weight').value),
-            length: parseFloat(document.getElementById('length').value),
-            price: parseFloat(document.getElementById('price').value),
-            location: document.getElementById('location').value,
-            catchDate: document.getElementById('catchDate').value,
-            fisherName: document.getElementById('fisherName').value,
-            contactEmail: document.getElementById('contactEmail').value,
-            description: document.getElementById('description').value,
-            imageUrl: null, // Will be handled by file upload
-            status: 'fresh',
-            verified: false
-        };
-        
-        // Try to upload to real API first
-        try {
-            const response = await fetch('/api/SeaTrue/catches', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newCatch)
-            });
-            
-            if (response.ok) {
-                const uploadedCatch = await response.json();
-                allCatches.unshift(uploadedCatch);
-                filteredCatches = [...allCatches];
-            } else {
-                throw new Error('API upload failed');
-            }
-        } catch (apiError) {
-            console.warn('API upload failed, using local storage:', apiError);
-            // Fallback to local storage
-            newCatch.id = allCatches.length + 1;
-            allCatches.unshift(newCatch);
-            filteredCatches = [...allCatches];
-        }
-        
-        // Reset form and close modal
-        form.reset();
-        bootstrap.Modal.getInstance(document.getElementById('uploadCatchModal')).hide();
-        
-        // Refresh display
-        displayCatches(filteredCatches);
-        
-        // Show success message
-        showSuccessMessage('Catch uploaded successfully!');
-        
-    } catch (error) {
-        console.error('Error uploading catch:', error);
-        showErrorMessage('Failed to upload catch. Please try again.');
-    } finally {
-        // Reset button
-        const submitButton = document.getElementById('submitCatch');
-        submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Upload Catch';
-        submitButton.disabled = false;
-    }
-}
-
 // Initialize modals
 function initializeModals() {
     // Catch details modal
-    const catchDetailsModal = document.getElementById('catchDetailsModal');
     const contactFisherBtn = document.getElementById('contactFisher');
+    const claimPurchaseBtn = document.getElementById('claimPurchase');
     
     contactFisherBtn.addEventListener('click', function() {
         if (currentCatchId) {
             contactFisher(currentCatchId);
+        }
+    });
+
+    claimPurchaseBtn.addEventListener('click', function() {
+        if (currentCatchId) {
+            claimPurchase(currentCatchId);
         }
     });
 }
@@ -515,22 +320,24 @@ function showCatchDetails(catchId) {
     modalContent.innerHTML = `
         <div class="row">
             <div class="col-md-6">
-                ${catchData.imageUrl ? 
-                    `<img src="${catchData.imageUrl}" alt="${catchData.species}" class="img-fluid rounded">` :
-                    `<div class="catch-image-placeholder">
-                        <i class="bi bi-fish"></i>
-                    </div>`
-                }
+                <div class="catch-image-placeholder">
+                    <i class="bi bi-fish"></i>
+                </div>
             </div>
             <div class="col-md-6">
                 <h4 class="text-primary">${catchData.species}</h4>
+                ${catchData.scientificName ? `<p class="fst-italic text-muted">${catchData.scientificName}</p>` : ''}
+                ${catchData.conservationStatus ? `<p><span class="badge bg-info text-dark">${catchData.conservationStatus}</span></p>` : ''}
+                ${catchData.verified ? '<p><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Verified</span></p>' : ''}
+                
                 <div class="row mb-3">
                     <div class="col-6">
                         <strong>Weight:</strong> ${catchData.weight} lbs
                     </div>
+                    ${catchData.length > 0 ? `
                     <div class="col-6">
                         <strong>Length:</strong> ${catchData.length} inches
-                    </div>
+                    </div>` : ''}
                 </div>
                 <div class="row mb-3">
                     <div class="col-6">
@@ -543,25 +350,77 @@ function showCatchDetails(catchId) {
                 <div class="mb-3">
                     <strong>Location:</strong> ${catchData.location}
                 </div>
+                ${catchData.landingPort ? `
+                <div class="mb-3">
+                    <strong>Landing Port:</strong> ${catchData.landingPort}
+                </div>` : ''}
                 <div class="mb-3">
                     <strong>Catch Date:</strong> ${formatDate(catchData.catchDate)}
                 </div>
+                <div class="mb-3">
+                    <strong>Status:</strong> <span class="text-capitalize">${catchData.status}</span>
+                </div>
+                ${catchData.storageMethod ? `
+                <div class="mb-3">
+                    <strong>Storage:</strong> ${catchData.storageMethod}
+                </div>` : ''}
                 <div class="mb-3">
                     <strong>Fisher:</strong> ${catchData.fisherName}
                 </div>
                 <div class="mb-3">
                     <strong>Contact:</strong> ${catchData.contactEmail}
                 </div>
+                ${catchData.aiConfidenceScore > 0 ? `
+                <div class="mb-3">
+                    <strong>AI Verification Score:</strong> ${catchData.aiConfidenceScore.toFixed(1)}%
+                </div>` : ''}
+                ${catchData.description ? `
                 <div class="mb-3">
                     <strong>Description:</strong><br>
                     ${catchData.description}
-                </div>
+                </div>` : ''}
             </div>
         </div>
     `;
     
     const modal = new bootstrap.Modal(document.getElementById('catchDetailsModal'));
     modal.show();
+}
+
+// Claim purchase
+async function claimPurchase(catchId) {
+    if (!confirm('Are you sure you want to claim this purchase? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/catches/${catchId}/claim`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                buyerEmail: 'buyer@example.com', // In real app, get from auth
+                buyerName: 'Current Buyer' // In real app, get from auth
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showSuccessMessage(result.message);
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal')).hide();
+            // Reload catches
+            await loadCatches();
+            applyFilters();
+        } else {
+            showErrorMessage(result.message || 'Failed to claim purchase');
+        }
+    } catch (error) {
+        console.error('Error claiming purchase:', error);
+        showErrorMessage('Failed to claim purchase. Please try again.');
+    }
 }
 
 // Contact fisher
@@ -664,64 +523,4 @@ function showErrorMessage(message) {
     toast.addEventListener('hidden.bs.toast', () => {
         document.body.removeChild(toast);
     });
-}
-
-// API integration class for future backend connection
-class SeaTrueAPI {
-    constructor(baseURL = '/api') {
-        this.baseURL = baseURL;
-    }
-    
-    async getCatches() {
-        try {
-            const response = await fetch(`${this.baseURL}/catches`);
-            if (!response.ok) throw new Error('Failed to fetch catches');
-            return await response.json();
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
-    
-    async uploadCatch(catchData) {
-        try {
-            const response = await fetch(`${this.baseURL}/catches`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(catchData)
-            });
-            if (!response.ok) throw new Error('Failed to upload catch');
-            return await response.json();
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
-    
-    async contactFisher(catchId, message) {
-        try {
-            const response = await fetch(`${this.baseURL}/catches/${catchId}/contact`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ message })
-            });
-            if (!response.ok) throw new Error('Failed to send message');
-            return await response.json();
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
-}
-
-// Initialize API instance for future use
-const seaTrueAPI = new SeaTrueAPI();
-
-// Export for potential module use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { SeaTrueAPI, displayCatches, applyFilters };
 }
