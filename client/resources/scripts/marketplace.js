@@ -184,6 +184,9 @@ function initializeFilters() {
     const sortBy = document.getElementById('sortBy');
     const clearFilters = document.getElementById('clearFilters');
     
+    // Hide clear button initially
+    updateClearButtonVisibility();
+    
     // Add event listeners
     searchInput.addEventListener('input', applyFilters);
     speciesFilter.addEventListener('change', applyFilters);
@@ -230,12 +233,36 @@ function applyFilters() {
         return matchesSearch && matchesSpecies && matchesLocation && matchesPrice;
     });
     
+    // Update clear button visibility
+    updateClearButtonVisibility();
+    
     // Apply sorting if one is selected
     const sortBy = document.getElementById('sortBy').value;
     if (sortBy) {
         applySorting();
     } else {
         displayCatches(filteredCatches);
+    }
+}
+
+// Check if any filters are applied
+function hasActiveFilters() {
+    const searchInput = document.getElementById('searchInput').value;
+    const speciesFilter = document.getElementById('speciesFilter').value;
+    const locationFilter = document.getElementById('locationFilter').value;
+    const priceFilter = document.getElementById('priceFilter').value;
+    const sortBy = document.getElementById('sortBy').value;
+    
+    return !!(searchInput || speciesFilter || locationFilter || priceFilter || sortBy);
+}
+
+// Update clear button visibility
+function updateClearButtonVisibility() {
+    const clearButton = document.getElementById('clearFilters');
+    if (hasActiveFilters()) {
+        clearButton.style.display = 'block';
+    } else {
+        clearButton.style.display = 'none';
     }
 }
 
@@ -248,12 +275,16 @@ function clearAllFilters() {
     document.getElementById('sortBy').value = '';
     
     filteredCatches = [...allCatches];
+    updateClearButtonVisibility();
     displayCatches(filteredCatches);
 }
 
 // Apply sorting
 function applySorting() {
     const sortBy = document.getElementById('sortBy').value;
+    
+    // Update clear button visibility
+    updateClearButtonVisibility();
     
     if (!sortBy) {
         displayCatches(filteredCatches);
