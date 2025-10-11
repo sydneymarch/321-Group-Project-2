@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.csproj.AssemblyReference.cache
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.GeneratedMSBuildEditorConfig.editorconfig
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.AssemblyInfoInputs.cache
@@ -6,6 +7,8 @@
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.MvcApplicationPartsAssemblyInfo.cs
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.MvcApplicationPartsAssemblyInfo.cache
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.sourcelink.json
+=======
+>>>>>>> main
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/bin/Debug/net9.0/appsettings.Development.json
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/bin/Debug/net9.0/appsettings.json
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/bin/Debug/net9.0/api.staticwebassets.endpoints.json
@@ -41,6 +44,17 @@
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/bin/Debug/net9.0/runtimes/win-arm64/native/e_sqlite3.dll
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/bin/Debug/net9.0/runtimes/win-x64/native/e_sqlite3.dll
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/bin/Debug/net9.0/runtimes/win-x86/native/e_sqlite3.dll
+<<<<<<< HEAD
+=======
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.csproj.AssemblyReference.cache
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.GeneratedMSBuildEditorConfig.editorconfig
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.AssemblyInfoInputs.cache
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.AssemblyInfo.cs
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.csproj.CoreCompileInputs.cache
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.MvcApplicationPartsAssemblyInfo.cs
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.MvcApplicationPartsAssemblyInfo.cache
+/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/api.sourcelink.json
+>>>>>>> main
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/scopedcss/bundle/api.styles.css
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/staticwebassets.build.json
 /Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/obj/Debug/net9.0/staticwebassets.development.json

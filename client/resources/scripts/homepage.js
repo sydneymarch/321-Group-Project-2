@@ -27,21 +27,31 @@ async function initializeStats() {
     }
 }
 
-// Mock API call - replace with actual API endpoint later
+// Fetch stats from API
 async function fetchStats() {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock data - replace with actual API call to /api/stats
-    return {
-        verifiedCatches: 12842,
-        activeFishers: 156,
-        fairTradeValue: 187000,
-    };
-    
-    // Future API call will look like:
-    // const response = await fetch('/api/stats');
-    // return await response.json();
+    try {
+        // Try to fetch from real API first
+        const response = await fetch('/api/SeaTrue/stats');
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                verifiedCatches: data.VerifiedCatches,
+                activeFishers: data.ActiveFishers,
+                fairTradeValue: Math.round(data.TotalValue),
+            };
+        } else {
+            throw new Error('API not available');
+        }
+    } catch (error) {
+        console.warn('API not available, using mock data:', error);
+        // Fallback to mock data
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return {
+            verifiedCatches: 12842,
+            activeFishers: 156,
+            fairTradeValue: 187000,
+        };
+    }
 }
 
 // Animate counter numbers
