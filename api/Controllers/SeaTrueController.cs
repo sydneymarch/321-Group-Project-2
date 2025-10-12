@@ -42,11 +42,14 @@ namespace api.Controllers
                         c.AIConfidenceScore,
                         c.LandingPort,
                         s.ScientificName,
-                        s.ConservationStatus
+                        s.ConservationStatus,
+                        cp.PhotoURL,
+                        cp.ThumbnailURL
                     FROM CatchRecord c
                     INNER JOIN FisherProfile fp ON c.FisherID = fp.FisherID
                     INNER JOIN User u ON fp.UserID = u.UserID
                     INNER JOIN Species s ON c.SpeciesID = s.SpeciesID
+                    LEFT JOIN CatchPhoto cp ON c.CatchID = cp.CatchID
                     WHERE c.IsAvailable = 1
                     AND fp.CertificationStatus IN ('Certified', 'PreVerified')
                     ORDER BY c.CatchDate DESC
@@ -81,6 +84,8 @@ namespace api.Controllers
                             LandingPort = reader.IsDBNull(15) ? "" : reader.GetString(15),
                             ScientificName = reader.IsDBNull(16) ? "" : reader.GetString(16),
                             ConservationStatus = reader.IsDBNull(17) ? "" : reader.GetString(17),
+                            ImageUrl = reader.IsDBNull(18) ? "" : reader.GetString(18),
+                            ThumbnailUrl = reader.IsDBNull(19) ? "" : reader.GetString(19),
                             Description = $"{reader.GetString(1)} caught at {(reader.IsDBNull(15) ? "sea" : reader.GetString(15))}. Conservation Status: {(reader.IsDBNull(17) ? "Unknown" : reader.GetString(17))}. {(reader.IsDBNull(13) ? "" : "Storage: " + reader.GetString(13) + ".")}"
                         });
                     }
@@ -117,11 +122,14 @@ namespace api.Controllers
                         c.AIConfidenceScore,
                         c.LandingPort,
                         s.ScientificName,
-                        s.ConservationStatus
+                        s.ConservationStatus,
+                        cp.PhotoURL,
+                        cp.ThumbnailURL
                     FROM CatchRecord c
                     INNER JOIN FisherProfile fp ON c.FisherID = fp.FisherID
                     INNER JOIN User u ON fp.UserID = u.UserID
                     INNER JOIN Species s ON c.SpeciesID = s.SpeciesID
+                    LEFT JOIN CatchPhoto cp ON c.CatchID = cp.CatchID
                     WHERE c.CatchID = @id
                 ", connection);
 
@@ -153,6 +161,8 @@ namespace api.Controllers
                             LandingPort = reader.IsDBNull(15) ? "" : reader.GetString(15),
                             ScientificName = reader.IsDBNull(16) ? "" : reader.GetString(16),
                             ConservationStatus = reader.IsDBNull(17) ? "" : reader.GetString(17),
+                            ImageUrl = reader.IsDBNull(18) ? "" : reader.GetString(18),
+                            ThumbnailUrl = reader.IsDBNull(19) ? "" : reader.GetString(19),
                             Description = $"{reader.GetString(1)} caught at {(reader.IsDBNull(15) ? "sea" : reader.GetString(15))}. Conservation Status: {(reader.IsDBNull(17) ? "Unknown" : reader.GetString(17))}. {(reader.IsDBNull(13) ? "" : "Storage: " + reader.GetString(13) + ".")}"
                         };
 
@@ -335,9 +345,9 @@ namespace api.Controllers
                             VerifiedCatches = reader.GetInt32(1),
                             ActiveFishers = reader.GetInt32(2),
                             TotalValue = reader.IsDBNull(3) ? 0 : Math.Round(reader.GetDouble(3), 2)
-                        };
+            };
 
-                        return Ok(stats);
+            return Ok(stats);
                     }
                 }
             }
@@ -366,6 +376,8 @@ namespace api.Controllers
         public string LandingPort { get; set; } = string.Empty;
         public string ScientificName { get; set; } = string.Empty;
         public string ConservationStatus { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public string ThumbnailUrl { get; set; } = string.Empty;
     }
 
     public class ClaimPurchaseRequest
