@@ -95,6 +95,307 @@
     border-bottom: 1px solid #dee2e6;
 }
 
+/* Advanced Filter Panel */
+.filter-panel {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+.filter-close-btn {
+    transition: all 0.3s ease;
+}
+
+.filter-close-btn:hover {
+    background-color: #023e8a !important;
+    color: white !important;
+    border-color: #023e8a !important;
+    transform: scale(1.1);
+}
+
+.filter-close-btn:focus {
+    box-shadow: 0 0 0 3px rgba(2, 62, 138, 0.25) !important;
+    outline: none !important;
+}
+
+.filter-close-btn:active {
+    transform: scale(0.95);
+    background-color: #023e8a !important;
+    color: white !important;
+}
+
+.filter-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-panel::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 3px;
+}
+
+.filter-group {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.filter-group:last-child {
+    border-bottom: none;
+}
+
+.filter-section-header {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.filter-section-header:hover {
+    color: var(--primary-blue) !important;
+}
+
+.filter-section-header .bi-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+.filter-section-header[aria-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+.filter-options {
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+}
+
+.filter-options::-webkit-scrollbar {
+    width: 4px;
+}
+
+.filter-options::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 2px;
+}
+
+.form-check-label {
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+/* Price Slider Styling */
+.price-slider-container {
+    position: relative;
+    height: 50px;
+    padding: 10px 0;
+}
+
+/* Slider track background */
+.price-slider-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: #e9ecef;
+    border-radius: 3px;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.price-slider-container input[type="range"] {
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none;
+    z-index: 2;
+}
+
+/* Track styling - make transparent since we're using ::before */
+.price-slider-container input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: transparent;
+    border-radius: 3px;
+}
+
+.price-slider-container input[type="range"]::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    background: transparent;
+    border-radius: 3px;
+}
+
+/* Thumb styling - WebKit */
+.price-slider-container input[type="range"]::-webkit-slider-thumb {
+    pointer-events: all;
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: var(--primary-blue);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    margin-top: -7px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Thumb styling - Firefox */
+.price-slider-container input[type="range"]::-moz-range-thumb {
+    pointer-events: all;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: var(--primary-blue);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 10;
+}
+
+/* Hover effects */
+.price-slider-container input[type="range"]::-webkit-slider-thumb:hover {
+    background: var(--secondary-blue);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+    z-index: 20;
+}
+
+.price-slider-container input[type="range"]::-moz-range-thumb:hover {
+    background: var(--secondary-blue);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+    z-index: 20;
+}
+
+/* Active state */
+.price-slider-container input[type="range"]:active::-webkit-slider-thumb {
+    box-shadow: 0 0 0 8px rgba(2, 62, 138, 0.1);
+    z-index: 20;
+}
+
+.price-slider-container input[type="range"]:active::-moz-range-thumb {
+    box-shadow: 0 0 0 8px rgba(2, 62, 138, 0.1);
+    z-index: 20;
+}
+
+#minPriceSlider {
+    z-index: 3;
+}
+
+#maxPriceSlider {
+    z-index: 4;
+}
+
+/* Active Filter Badges */
+#activeFilterBadges .badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.filter-badge {
+    background-color: var(--light-blue);
+    color: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-badge:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.filter-badge .bi-x {
+    margin-left: 0.5rem;
+}
+
+/* Results Bar */
+.results-bar {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Toggle Filters Button */
+#toggleFilters {
+    display: inline-block;
+}
+
+/* Hide sidebar by default */
+#filterSidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 320px;
+    height: 100vh;
+    background: white;
+    z-index: 1050;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+}
+
+#filterSidebar.show {
+    display: block;
+    transform: translateX(0);
+}
+
+/* Filter overlay */
+.filter-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+.filter-overlay.show {
+    display: block;
+}
+
+/* Desktop - wider sidebar when shown */
+@media (min-width: 992px) {
+    #filterSidebar {
+        width: 350px;
+    }
+    
+    #mainContent {
+        transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+    
+    #filterSidebar.show ~ #mainContent {
+        margin-left: 350px;
+        width: calc(100% - 350px);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 991px) {
+    #filterSidebar {
+        width: 85%;
+        max-width: 320px;
+    }
+    
+    .filter-panel {
+        max-height: none;
+        position: static;
+    }
+}
+
 /* Filters Section */
 .filters-section {
     border-bottom: 1px solid #dee2e6;

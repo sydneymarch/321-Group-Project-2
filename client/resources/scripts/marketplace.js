@@ -1,11 +1,8 @@
-// SeaTrue Marketplace JavaScript
-// Handles catch display, filtering, and API interactions for buyers
+// SeaTrue Marketplace JavaScript - Advanced Filter System
+// Handles catch display, advanced filtering with sliders and checkboxes, and API interactions
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize marketplace functionality
     initializeMarketplace();
-    initializeFilters();
-    initializeModals();
 });
 
 // Global variables
@@ -14,20 +11,47 @@ let filteredCatches = [];
 let currentCatchId = null;
 const API_BASE_URL = 'http://localhost:5142/api/SeaTrue';
 
+// Filter state
+let filterState = {
+    searchTerm: '',
+    minPrice: 0,
+    maxPrice: 500,
+    selectedSpecies: new Set(),
+    selectedLocations: new Set(),
+    selectedConditions: new Set(),
+    selectedVerification: new Set(),
+    selectedConservation: new Set(),
+    sortBy: ''
+};
+
 // Initialize marketplace
 async function initializeMarketplace() {
     try {
         showLoadingState();
+        
+        // Load all data in parallel
         await Promise.all([
             loadCatches(),
-            loadSpeciesFilters(),
-            loadLocationFilters()
+            loadSpeciesOptions(),
+            loadLocationOptions()
         ]);
+        
+        // Initialize price range based on actual data
+        initializePriceRange();
+        
+        // Initialize filter handlers
+        initializeFilterHandlers();
+        
+        // Initialize modals
+        initializeModals();
+        
+        // Display initial results
         hideLoadingState();
-        displayCatches(filteredCatches);
+        applyAllFilters();
+        
     } catch (error) {
         console.error('Error initializing marketplace:', error);
-        showErrorState('Failed to load catches. Please try again.');
+        showErrorState('Failed to load catches. Please refresh the page.');
     }
 }
 
@@ -47,23 +71,23 @@ async function loadCatches() {
     }
 }
 
-// Load species filters from API
-async function loadSpeciesFilters() {
+// Load species options dynamically
+async function loadSpeciesOptions() {
     try {
         const response = await fetch(`${API_BASE_URL}/species`);
         if (response.ok) {
             const species = await response.json();
-            const speciesFilter = document.getElementById('speciesFilter');
+            const container = document.getElementById('speciesCheckboxes');
             
-            // Clear existing options except the first one
-            speciesFilter.innerHTML = '<option value="">All Species</option>';
-            
-            // Add species options
-            species.forEach(sp => {
-                const option = document.createElement('option');
-                option.value = sp.toLowerCase();
-                option.textContent = sp;
-                speciesFilter.appendChild(option);
+            species.forEach((sp, index) => {
+                const checkboxId = `species-${index}`;
+                const div = document.createElement('div');
+                div.className = 'form-check mb-2';
+                div.innerHTML = `
+                    <input class="form-check-input species-checkbox" type="checkbox" id="${checkboxId}" value="${sp}">
+                    <label class="form-check-label" for="${checkboxId}">${sp}</label>
+                `;
+                container.appendChild(div);
             });
         }
     } catch (error) {
@@ -71,28 +95,445 @@ async function loadSpeciesFilters() {
     }
 }
 
-// Load location filters from API
-async function loadLocationFilters() {
+// Load location options dynamically
+async function loadLocationOptions() {
     try {
         const response = await fetch(`${API_BASE_URL}/locations`);
         if (response.ok) {
             const locations = await response.json();
-            const locationFilter = document.getElementById('locationFilter');
+            const container = document.getElementById('locationCheckboxes');
             
-            // Clear existing options except the first one
-            locationFilter.innerHTML = '<option value="">All States</option>';
-            
-            // Add location options
-            locations.forEach(loc => {
-                const option = document.createElement('option');
-                option.value = loc;
-                option.textContent = loc;
-                locationFilter.appendChild(option);
+            locations.forEach((loc, index) => {
+                const checkboxId = `location-${index}`;
+                const div = document.createElement('div');
+                div.className = 'form-check mb-2';
+                div.innerHTML = `
+                    <input class="form-check-input location-checkbox" type="checkbox" id="${checkboxId}" value="${loc}">
+                    <label class="form-check-label" for="${checkboxId}">${loc}</label>
+                `;
+                container.appendChild(div);
             });
         }
     } catch (error) {
         console.error('Error loading locations:', error);
     }
+}
+
+// Initialize price range sliders based on actual data
+function initializePriceRange() {
+    if (allCatches.length === 0) {
+        // Set default values if no catches loaded yet
+        setDefaultPriceRange();
+        return;
+    }
+    
+    // Calculate total prices, filtering out invalid values
+    const prices = allCatches
+        .map(c => {
+            const price = c.price || 0;
+            const weight = c.weight || 0;
+            return price * weight;
+        })
+        .filter(price => !isNaN(price) && price > 0);
+    
+    if (prices.length === 0) {
+        setDefaultPriceRange();
+        return;
+    }
+    
+    const minPrice = Math.floor(Math.min(...prices));
+    const maxPrice = Math.ceil(Math.max(...prices));
+    
+    // Update slider ranges
+    const minSlider = document.getElementById('minPriceSlider');
+    const maxSlider = document.getElementById('maxPriceSlider');
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    
+    minSlider.min = minPrice;
+    minSlider.max = maxPrice;
+    minSlider.value = minPrice;
+    
+    maxSlider.min = minPrice;
+    maxSlider.max = maxPrice;
+    maxSlider.value = maxPrice;
+    
+    minInput.value = minPrice;
+    minInput.min = minPrice;
+    minInput.max = maxPrice;
+    
+    maxInput.value = maxPrice;
+    maxInput.min = minPrice;
+    maxInput.max = maxPrice;
+    
+    // Update filter state
+    filterState.minPrice = minPrice;
+    filterState.maxPrice = maxPrice;
+}
+
+// Set default price range when no data available
+function setDefaultPriceRange() {
+    const defaultMin = 0;
+    const defaultMax = 500;
+    
+    const minSlider = document.getElementById('minPriceSlider');
+    const maxSlider = document.getElementById('maxPriceSlider');
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    
+    minSlider.min = defaultMin;
+    minSlider.max = defaultMax;
+    minSlider.value = defaultMin;
+    
+    maxSlider.min = defaultMin;
+    maxSlider.max = defaultMax;
+    maxSlider.value = defaultMax;
+    
+    minInput.value = defaultMin;
+    minInput.min = defaultMin;
+    minInput.max = defaultMax;
+    
+    maxInput.value = defaultMax;
+    maxInput.min = defaultMin;
+    maxInput.max = defaultMax;
+    
+    filterState.minPrice = defaultMin;
+    filterState.maxPrice = defaultMax;
+}
+
+// Initialize all filter handlers
+function initializeFilterHandlers() {
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', debounce(() => {
+        filterState.searchTerm = searchInput.value.toLowerCase();
+        applyAllFilters();
+    }, 300));
+    
+    // Price sliders
+    const minSlider = document.getElementById('minPriceSlider');
+    const maxSlider = document.getElementById('maxPriceSlider');
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    
+    minSlider.addEventListener('input', () => {
+        filterState.minPrice = parseInt(minSlider.value);
+        if (filterState.minPrice > filterState.maxPrice) {
+            filterState.minPrice = filterState.maxPrice;
+            minSlider.value = filterState.minPrice;
+        }
+        minInput.value = filterState.minPrice;
+        applyAllFilters();
+    });
+    
+    maxSlider.addEventListener('input', () => {
+        filterState.maxPrice = parseInt(maxSlider.value);
+        if (filterState.maxPrice < filterState.minPrice) {
+            filterState.maxPrice = filterState.minPrice;
+            maxSlider.value = filterState.maxPrice;
+        }
+        maxInput.value = filterState.maxPrice;
+        applyAllFilters();
+    });
+    
+    minInput.addEventListener('change', () => {
+        filterState.minPrice = parseInt(minInput.value);
+        minSlider.value = filterState.minPrice;
+        applyAllFilters();
+    });
+    
+    maxInput.addEventListener('change', () => {
+        filterState.maxPrice = parseInt(maxInput.value);
+        maxSlider.value = filterState.maxPrice;
+        applyAllFilters();
+    });
+    
+    // Sort dropdown
+    document.getElementById('sortBy').addEventListener('change', (e) => {
+        filterState.sortBy = e.target.value;
+        applyAllFilters();
+    });
+    
+    // Species checkboxes (delegated)
+    document.getElementById('speciesCheckboxes').addEventListener('change', (e) => {
+        if (e.target.classList.contains('species-checkbox')) {
+            if (e.target.checked) {
+                filterState.selectedSpecies.add(e.target.value);
+            } else {
+                filterState.selectedSpecies.delete(e.target.value);
+            }
+            applyAllFilters();
+        }
+    });
+    
+    // Location checkboxes (delegated)
+    document.getElementById('locationCheckboxes').addEventListener('change', (e) => {
+        if (e.target.classList.contains('location-checkbox')) {
+            if (e.target.checked) {
+                filterState.selectedLocations.add(e.target.value);
+            } else {
+                filterState.selectedLocations.delete(e.target.value);
+            }
+            applyAllFilters();
+        }
+    });
+    
+    // Condition checkboxes
+    ['conditionFresh', 'conditionFrozen', 'conditionLive'].forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    filterState.selectedConditions.add(checkbox.value);
+                } else {
+                    filterState.selectedConditions.delete(checkbox.value);
+                }
+                applyAllFilters();
+            });
+        }
+    });
+    
+    // Verification checkboxes
+    ['aiVerified', 'adminVerified'].forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    filterState.selectedVerification.add(checkbox.value);
+                } else {
+                    filterState.selectedVerification.delete(checkbox.value);
+                }
+                applyAllFilters();
+            });
+        }
+    });
+    
+    // Conservation status checkboxes
+    ['conservationLC', 'conservationNT', 'conservationVU', 'conservationEN'].forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    filterState.selectedConservation.add(checkbox.value);
+                } else {
+                    filterState.selectedConservation.delete(checkbox.value);
+                }
+                applyAllFilters();
+            });
+        }
+    });
+    
+    // Clear filters buttons
+    document.getElementById('clearFilters').addEventListener('click', clearAllFilters);
+    document.getElementById('clearFiltersSidebar').addEventListener('click', clearAllFilters);
+    
+    // Toggle filters
+    document.getElementById('toggleFilters').addEventListener('click', toggleFilterSidebar);
+    
+    // Close filters button
+    document.getElementById('closeFilters').addEventListener('click', () => {
+        const sidebar = document.getElementById('filterSidebar');
+        const overlay = document.getElementById('filterOverlay');
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    });
+}
+
+// Apply all filters
+function applyAllFilters() {
+    filteredCatches = allCatches.filter(catchItem => {
+        // Search filter
+        const matchesSearch = !filterState.searchTerm || 
+            catchItem.species.toLowerCase().includes(filterState.searchTerm) ||
+            catchItem.location.toLowerCase().includes(filterState.searchTerm) ||
+            catchItem.fisherName.toLowerCase().includes(filterState.searchTerm) ||
+            catchItem.scientificName.toLowerCase().includes(filterState.searchTerm);
+        
+        // Price filter
+        const totalPrice = (catchItem.price || 0) * (catchItem.weight || 0);
+        const matchesPrice = totalPrice >= filterState.minPrice && totalPrice <= filterState.maxPrice;
+        
+        // Species filter
+        const matchesSpecies = filterState.selectedSpecies.size === 0 || 
+            filterState.selectedSpecies.has(catchItem.species);
+        
+        // Location filter
+        const matchesLocation = filterState.selectedLocations.size === 0 || 
+            filterState.selectedLocations.has(catchItem.location);
+        
+        // Condition filter
+        const matchesCondition = filterState.selectedConditions.size === 0 || 
+            filterState.selectedConditions.has(catchItem.status);
+        
+        // Verification filter
+        const matchesVerification = filterState.selectedVerification.size === 0 || 
+            (filterState.selectedVerification.has('ai') && catchItem.isAIVerified) ||
+            (filterState.selectedVerification.has('admin') && catchItem.isAdminVerified);
+        
+        // Conservation status filter
+        const matchesConservation = filterState.selectedConservation.size === 0 || 
+            filterState.selectedConservation.has(catchItem.iucnRedListStatus);
+        
+        return matchesSearch && matchesPrice && matchesSpecies && matchesLocation && 
+               matchesCondition && matchesVerification && matchesConservation;
+    });
+    
+    // Apply sorting
+    if (filterState.sortBy) {
+        applySorting();
+    }
+    
+    // Update UI
+    updateResultsCount();
+    updateActiveFilters();
+    updateClearButtonVisibility();
+    displayCatches(filteredCatches);
+}
+
+// Apply sorting to filtered catches
+function applySorting() {
+    const [field, direction] = filterState.sortBy.split('-');
+    const isDescending = direction === 'desc';
+    
+    filteredCatches.sort((a, b) => {
+        let comparison = 0;
+        
+        switch (field) {
+            case 'weight':
+                comparison = (a.weight || 0) - (b.weight || 0);
+                break;
+            case 'date':
+                comparison = new Date(a.catchDate) - new Date(b.catchDate);
+                break;
+            case 'price':
+                comparison = ((a.price || 0) * (a.weight || 0)) - ((b.price || 0) * (b.weight || 0));
+                break;
+            default:
+                return 0;
+        }
+        
+        return isDescending ? -comparison : comparison;
+    });
+}
+
+// Update results count
+function updateResultsCount() {
+    document.getElementById('resultsCount').textContent = filteredCatches.length;
+}
+
+// Update active filters display
+function updateActiveFilters() {
+    const container = document.getElementById('activeFilterBadges');
+    const activeFiltersDiv = document.getElementById('activeFilters');
+    container.innerHTML = '';
+    
+    let hasFilters = false;
+    
+    // Add filter badges
+    filterState.selectedSpecies.forEach(species => {
+        container.appendChild(createFilterBadge('Species', species, () => {
+            filterState.selectedSpecies.delete(species);
+            document.querySelector(`input[value="${species}"].species-checkbox`).checked = false;
+            applyAllFilters();
+        }));
+        hasFilters = true;
+    });
+    
+    filterState.selectedLocations.forEach(location => {
+        container.appendChild(createFilterBadge('Location', location, () => {
+            filterState.selectedLocations.delete(location);
+            document.querySelector(`input[value="${location}"].location-checkbox`).checked = false;
+            applyAllFilters();
+        }));
+        hasFilters = true;
+    });
+    
+    filterState.selectedConditions.forEach(condition => {
+        container.appendChild(createFilterBadge('Condition', condition, () => {
+            filterState.selectedConditions.delete(condition);
+            document.getElementById(`condition${condition}`).checked = false;
+            applyAllFilters();
+        }));
+        hasFilters = true;
+    });
+    
+    activeFiltersDiv.style.display = hasFilters ? 'block' : 'none';
+}
+
+// Create filter badge
+function createFilterBadge(label, value, onClick) {
+    const badge = document.createElement('span');
+    badge.className = 'badge filter-badge';
+    badge.innerHTML = `${label}: ${value} <i class="bi bi-x"></i>`;
+    badge.onclick = onClick;
+    return badge;
+}
+
+// Check if any filters are active
+function hasActiveFilters() {
+    return filterState.searchTerm !== '' ||
+           filterState.selectedSpecies.size > 0 ||
+           filterState.selectedLocations.size > 0 ||
+           filterState.selectedConditions.size > 0 ||
+           filterState.selectedVerification.size > 0 ||
+           filterState.selectedConservation.size > 0 ||
+           filterState.sortBy !== '';
+}
+
+// Update clear button visibility
+function updateClearButtonVisibility() {
+    const clearBtn = document.getElementById('clearFilters');
+    const clearSidebarContainer = document.getElementById('clearFiltersSidebarContainer');
+    const display = hasActiveFilters() ? 'inline-block' : 'none';
+    const blockDisplay = hasActiveFilters() ? 'block' : 'none';
+    clearBtn.style.display = display;
+    clearSidebarContainer.style.display = blockDisplay;
+}
+
+// Clear all filters
+function clearAllFilters() {
+    // Reset filter state
+    filterState.searchTerm = '';
+    filterState.selectedSpecies.clear();
+    filterState.selectedLocations.clear();
+    filterState.selectedConditions.clear();
+    filterState.selectedVerification.clear();
+    filterState.selectedConservation.clear();
+    filterState.sortBy = '';
+    
+    // Reset UI elements
+    document.getElementById('searchInput').value = '';
+    document.getElementById('sortBy').value = '';
+    
+    // Uncheck all checkboxes
+    document.querySelectorAll('.form-check-input').forEach(cb => cb.checked = false);
+    
+    // Reset price range
+    initializePriceRange();
+    
+    // Reapply filters
+    applyAllFilters();
+}
+
+// Toggle filter sidebar
+function toggleFilterSidebar() {
+    const sidebar = document.getElementById('filterSidebar');
+    const overlay = document.getElementById('filterOverlay');
+    const isShowing = sidebar.classList.contains('show');
+    
+    if (isShowing) {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    } else {
+        sidebar.classList.add('show');
+        overlay.classList.add('show');
+    }
+    
+    // Close sidebar when clicking overlay
+    overlay.onclick = () => {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    };
 }
 
 // Display catches in grid
@@ -118,367 +559,212 @@ function displayCatches(catches) {
 }
 
 // Create catch card HTML
-function createCatchCard(catchData) {
-    const statusClass = catchData.status === 'fresh' ? 'status-fresh' : 
-                       catchData.status === 'frozen' ? 'status-frozen' : 'status-fresh';
-    
-    const statusText = catchData.status === 'fresh' ? 'Fresh' : 
-                      catchData.status === 'frozen' ? 'Frozen' : 'Fresh';
-    
-    const verifiedBadge = catchData.verified ? 
-        '<span class="status-badge status-verified ms-2">Verified</span>' : '';
+function createCatchCard(catchItem) {
+    const totalPrice = ((catchItem.price || 0) * (catchItem.weight || 0)).toFixed(2);
+    const conservationStyle = getConservationBadgeClass(catchItem.conservationStatus || 'DD');
     
     return `
         <div class="col-lg-4 col-md-6">
-            <div class="catch-card fade-in" data-catch-id="${catchData.id}">
-                <div class="position-relative">
-                    <div class="catch-image-placeholder">
-                        <i class="bi bi-fish"></i>
-                    </div>
-                    <span class="status-badge ${statusClass}">${statusText}</span>
-                    ${verifiedBadge}
-                </div>
+            <div class="catch-card" data-catch-id="${catchItem.id}">
+                ${catchItem.imageUrl ? 
+                    `<img src="${catchItem.imageUrl}" alt="${catchItem.species}" class="catch-image">` :
+                    `<div class="catch-image-placeholder"><i class="bi bi-fish"></i></div>`
+                }
                 <div class="catch-info">
-                    <h5 class="catch-species">${catchData.species}</h5>
-                    ${catchData.scientificName ? `<p class="text-muted small fst-italic mb-2">${catchData.scientificName}</p>` : ''}
-                    ${catchData.conservationStatus ? `<p class="badge bg-info text-dark mb-2">${catchData.conservationStatus}</p>` : ''}
-                    <div class="catch-details">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="catch-species mb-0">${catchItem.species}</h5>
+                        <span class="badge" style="${conservationStyle}">${catchItem.conservationStatus || 'DD'}</span>
+                    </div>
+                    <p class="text-muted small mb-2"><em>${catchItem.scientificName || 'Unknown'}</em></p>
+                    
+                    <div class="catch-details mb-3">
                         <div class="catch-detail">
-                            <i class="bi bi-speedometer2"></i>
-                            <span>${catchData.weight} lbs</span>
+                            <i class="bi bi-arrow-down-up"></i>
+                            <span>${(catchItem.weight || 0).toFixed(1)} lbs</span>
                         </div>
-                        ${catchData.length > 0 ? `
                         <div class="catch-detail">
-                            <i class="bi bi-rulers"></i>
-                            <span>${catchData.length}"</span>
-                        </div>` : ''}
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>${catchItem.location || 'Unknown'}</span>
+                        </div>
                         <div class="catch-detail">
-                            <i class="bi bi-geo-alt"></i>
-                            <span>${catchData.location}</span>
+                            <i class="bi bi-calendar3"></i>
+                            <span>${new Date(catchItem.catchDate).toLocaleDateString()}</span>
                         </div>
                     </div>
-                    <div class="catch-price">$${catchData.price.toFixed(2)}/lb</div>
-                    <div class="catch-fisher">Fisher: ${catchData.fisherName}</div>
-                    <div class="catch-date">Caught: ${formatDate(catchData.catchDate)}</div>
-                    ${catchData.description ? `<div class="catch-description">${catchData.description}</div>` : ''}
-                    <div class="catch-actions">
-                        <button class="btn btn-view-details" onclick="event.stopPropagation(); showCatchDetails(${catchData.id})">
-                            <i class="bi bi-eye me-1"></i>View Details
-                        </button>
-                        <button class="btn btn-contact" onclick="event.stopPropagation(); contactFisher(${catchData.id})">
-                            <i class="bi bi-envelope me-1"></i>Contact
-                        </button>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="catch-price">$${totalPrice}</div>
+                        <div>
+                            ${catchItem.verified ? '<i class="bi bi-shield-check text-success" title="Verified"></i>' : ''}
+                        </div>
                     </div>
+                    
+                    <button class="btn btn-primary w-100">
+                        <i class="bi bi-eye me-2"></i>View Details
+                    </button>
                 </div>
             </div>
         </div>
     `;
 }
 
-// Initialize filters
-function initializeFilters() {
-    const searchInput = document.getElementById('searchInput');
-    const speciesFilter = document.getElementById('speciesFilter');
-    const locationFilter = document.getElementById('locationFilter');
-    const priceFilter = document.getElementById('priceFilter');
-    const sortBy = document.getElementById('sortBy');
-    const clearFilters = document.getElementById('clearFilters');
-    
-    // Hide clear button initially
-    updateClearButtonVisibility();
-    
-    // Add event listeners
-    searchInput.addEventListener('input', applyFilters);
-    speciesFilter.addEventListener('change', applyFilters);
-    locationFilter.addEventListener('change', applyFilters);
-    priceFilter.addEventListener('change', applyFilters);
-    sortBy.addEventListener('change', applySorting);
-    clearFilters.addEventListener('click', clearAllFilters);
+// Get conservation badge class
+function getConservationBadgeClass(status) {
+    const styles = {
+        'LC': 'background-color: #28a745; color: white;',
+        'NT': 'background-color: #ffc107; color: #212529;',
+        'VU': 'background-color: #fd7e14; color: white;',
+        'EN': 'background-color: #dc3545; color: white;',
+        'CR': 'background-color: #6f42c1; color: white;',
+        'DD': 'background-color: #6c757d; color: white;'
+    };
+    return styles[status] || 'background-color: #6c757d; color: white;';
 }
 
-// Apply filters
-function applyFilters() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const speciesFilter = document.getElementById('speciesFilter').value.toLowerCase();
-    const locationFilter = document.getElementById('locationFilter').value;
-    const priceFilter = document.getElementById('priceFilter').value;
-    
-    filteredCatches = allCatches.filter(catchItem => {
-        // Search filter
-        const matchesSearch = !searchTerm || 
-            catchItem.species.toLowerCase().includes(searchTerm) ||
-            catchItem.location.toLowerCase().includes(searchTerm) ||
-            catchItem.fisherName.toLowerCase().includes(searchTerm) ||
-            (catchItem.description && catchItem.description.toLowerCase().includes(searchTerm));
-        
-        // Species filter
-        const matchesSpecies = !speciesFilter || 
-            catchItem.species.toLowerCase() === speciesFilter;
-        
-        // Location filter - exact state match
-        const matchesLocation = !locationFilter || 
-            catchItem.location === locationFilter;
-        
-        // Price filter
-        let matchesPrice = true;
-        if (priceFilter) {
-            const [min, max] = priceFilter.split('-').map(p => parseFloat(p));
-            if (max) {
-                matchesPrice = catchItem.price >= min && catchItem.price <= max;
-            } else {
-                matchesPrice = catchItem.price >= min;
-            }
+// Show catch details modal
+async function showCatchDetails(catchId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/catches/${catchId}`);
+            if (response.ok) {
+            const catchData = await response.json();
+            currentCatchId = catchId;
+            displayCatchDetailsModal(catchData);
         }
-        
-        return matchesSearch && matchesSpecies && matchesLocation && matchesPrice;
-    });
-    
-    // Update clear button visibility
-    updateClearButtonVisibility();
-    
-    // Apply sorting if one is selected
-    const sortBy = document.getElementById('sortBy').value;
-    if (sortBy) {
-        applySorting();
-    } else {
-        displayCatches(filteredCatches);
+    } catch (error) {
+        console.error('Error loading catch details:', error);
     }
 }
 
-// Check if any filters are applied
-function hasActiveFilters() {
-    const searchInput = document.getElementById('searchInput').value;
-    const speciesFilter = document.getElementById('speciesFilter').value;
-    const locationFilter = document.getElementById('locationFilter').value;
-    const priceFilter = document.getElementById('priceFilter').value;
-    const sortBy = document.getElementById('sortBy').value;
+// Display catch details in modal
+function displayCatchDetailsModal(catchData) {
+    const totalPrice = ((catchData.price || 0) * (catchData.weight || 0)).toFixed(2);
+    const modal = document.getElementById('catchDetailsContent');
     
-    return !!(searchInput || speciesFilter || locationFilter || priceFilter || sortBy);
-}
-
-// Update clear button visibility
-function updateClearButtonVisibility() {
-    const clearButton = document.getElementById('clearFilters');
-    if (hasActiveFilters()) {
-        clearButton.style.display = 'block';
-    } else {
-        clearButton.style.display = 'none';
-    }
-}
-
-// Clear all filters
-function clearAllFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('speciesFilter').value = '';
-    document.getElementById('locationFilter').value = '';
-    document.getElementById('priceFilter').value = '';
-    document.getElementById('sortBy').value = '';
+    modal.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                ${catchData.imageUrl ? 
+                    `<img src="${catchData.imageUrl}" alt="${catchData.species}" class="img-fluid rounded mb-3">` :
+                    `<div class="catch-image-placeholder mb-3"><i class="bi bi-fish"></i></div>`
+                }
+            </div>
+            <div class="col-md-6">
+                <h3 class="text-primary">${catchData.species}</h3>
+                <p class="text-muted"><em>${catchData.scientificName || 'Unknown'}</em></p>
+                <h4 class="text-success mb-3">$${totalPrice}</h4>
+                
+                <table class="table table-sm">
+                    <tr>
+                        <th>Weight:</th>
+                        <td>${(catchData.weight || 0).toFixed(1)} lbs</td>
+                    </tr>
+                    ${catchData.length ? `
+                        <tr>
+                            <th>Size:</th>
+                            <td>${catchData.length.toFixed(1)} inches</td>
+                        </tr>
+                    ` : ''}
+                    <tr>
+                        <th>Location:</th>
+                        <td>${catchData.location || 'Unknown'}</td>
+                    </tr>
+                    <tr>
+                        <th>Catch Date:</th>
+                        <td>${new Date(catchData.catchDate).toLocaleDateString()}</td>
+                    </tr>
+                    <tr>
+                        <th>Condition:</th>
+                        <td>${catchData.status || 'Fresh'}</td>
+                    </tr>
+                    <tr>
+                        <th>Fisher:</th>
+                        <td>${catchData.fisherName}</td>
+                    </tr>
+                    <tr>
+                        <th>Conservation:</th>
+                        <td><span class="badge" style="${getConservationBadgeClass(catchData.conservationStatus)}">${catchData.conservationStatus || 'Unknown'}</span></td>
+                    </tr>
+                </table>
+                
+                <div class="mt-3">
+                    ${catchData.verified ? '<span class="badge bg-success"><i class="bi bi-shield-check"></i> Verified</span>' : ''}
+                </div>
+                
+                ${catchData.description ? `
+                    <div class="mt-3">
+                        <h6>Description:</h6>
+                        <p>${catchData.description}</p>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
     
-    filteredCatches = [...allCatches];
-    updateClearButtonVisibility();
-    displayCatches(filteredCatches);
-}
-
-// Apply sorting
-function applySorting() {
-    const sortBy = document.getElementById('sortBy').value;
-    
-    // Update clear button visibility
-    updateClearButtonVisibility();
-    
-    if (!sortBy) {
-        displayCatches(filteredCatches);
-        return;
-    }
-    
-    // Apply sorting to filtered catches
-    const sortedCatches = [...filteredCatches].sort((a, b) => {
-        const [field, direction] = sortBy.split('-');
-        const isDescending = direction === 'desc';
-        
-        let comparison = 0;
-        
-        switch (field) {
-            case 'weight':
-                comparison = a.weight - b.weight;
-                break;
-            case 'length':
-                comparison = a.length - b.length;
-                break;
-            case 'date':
-                comparison = new Date(a.catchDate) - new Date(b.catchDate);
-                break;
-            case 'price':
-                comparison = a.price - b.price;
-                break;
-            default:
-                return 0;
-        }
-        
-        return isDescending ? -comparison : comparison;
-    });
-    
-    displayCatches(sortedCatches);
+    const modal2 = new bootstrap.Modal(document.getElementById('catchDetailsModal'));
+    modal2.show();
 }
 
 // Initialize modals
 function initializeModals() {
-    // Catch details modal
-    const contactFisherBtn = document.getElementById('contactFisher');
-    const claimPurchaseBtn = document.getElementById('claimPurchase');
+    const claimBtn = document.getElementById('claimPurchase');
+    const contactBtn = document.getElementById('contactFisher');
     
-    contactFisherBtn.addEventListener('click', function() {
-        if (currentCatchId) {
-            contactFisher(currentCatchId);
-        }
-    });
-
-    claimPurchaseBtn.addEventListener('click', function() {
-        if (currentCatchId) {
-            claimPurchase(currentCatchId);
-        }
-    });
-}
-
-// Show catch details
-function showCatchDetails(catchId) {
-    const catchData = allCatches.find(c => c.id === catchId);
-    if (!catchData) return;
-    
-    currentCatchId = catchId;
-    
-    const modalContent = document.getElementById('catchDetailsContent');
-    modalContent.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <div class="catch-image-placeholder">
-                    <i class="bi bi-fish"></i>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h4 class="text-primary">${catchData.species}</h4>
-                ${catchData.scientificName ? `<p class="fst-italic text-muted">${catchData.scientificName}</p>` : ''}
-                ${catchData.conservationStatus ? `<p><span class="badge bg-info text-dark">${catchData.conservationStatus}</span></p>` : ''}
-                ${catchData.verified ? '<p><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Verified</span></p>' : ''}
-                
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <strong>Weight:</strong> ${catchData.weight} lbs
-                    </div>
-                    ${catchData.length > 0 ? `
-                    <div class="col-6">
-                        <strong>Length:</strong> ${catchData.length} inches
-                    </div>` : ''}
-                </div>
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <strong>Price:</strong> $${catchData.price.toFixed(2)}/lb
-                    </div>
-                    <div class="col-6">
-                        <strong>Total Value:</strong> $${(catchData.weight * catchData.price).toFixed(2)}
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <strong>Location:</strong> ${catchData.location}
-                </div>
-                ${catchData.landingPort ? `
-                <div class="mb-3">
-                    <strong>Landing Port:</strong> ${catchData.landingPort}
-                </div>` : ''}
-                <div class="mb-3">
-                    <strong>Catch Date:</strong> ${formatDate(catchData.catchDate)}
-                </div>
-                <div class="mb-3">
-                    <strong>Status:</strong> <span class="text-capitalize">${catchData.status}</span>
-                </div>
-                ${catchData.storageMethod ? `
-                <div class="mb-3">
-                    <strong>Storage:</strong> ${catchData.storageMethod}
-                </div>` : ''}
-                <div class="mb-3">
-                    <strong>Fisher:</strong> ${catchData.fisherName}
-                </div>
-                <div class="mb-3">
-                    <strong>Contact:</strong> ${catchData.contactEmail}
-                </div>
-                ${catchData.aiConfidenceScore > 0 ? `
-                <div class="mb-3">
-                    <strong>AI Verification Score:</strong> ${catchData.aiConfidenceScore.toFixed(1)}%
-                </div>` : ''}
-                ${catchData.description ? `
-                <div class="mb-3">
-                    <strong>Description:</strong><br>
-                    ${catchData.description}
-                </div>` : ''}
-            </div>
-        </div>
-    `;
-    
-    const modal = new bootstrap.Modal(document.getElementById('catchDetailsModal'));
-    modal.show();
-}
-
-// Claim purchase
-async function claimPurchase(catchId) {
-    if (!confirm('Are you sure you want to claim this purchase? This action cannot be undone.')) {
-        return;
+    if (claimBtn) {
+        claimBtn.addEventListener('click', handleClaimPurchase);
     }
+    
+    if (contactBtn) {
+        contactBtn.addEventListener('click', handleContactFisher);
+    }
+}
 
+// Handle claim purchase
+async function handleClaimPurchase() {
+    if (!currentCatchId) return;
+    
     try {
-        const response = await fetch(`${API_BASE_URL}/catches/${catchId}/claim`, {
+        const response = await fetch(`${API_BASE_URL}/catches/${currentCatchId}/claim`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                buyerEmail: 'buyer@example.com', // In real app, get from auth
-                buyerName: 'Current Buyer' // In real app, get from auth
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ BuyerID: 1 }) // Hardcoded for demo
         });
-
-        const result = await response.json();
-
+        
         if (response.ok) {
-            showSuccessMessage(result.message);
-            // Close modal
+            alert('Purchase claimed successfully! The fisher has been notified.');
             bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal')).hide();
-            // Reload catches
             await loadCatches();
-            applyFilters();
+            applyAllFilters();
         } else {
-            showErrorMessage(result.message || 'Failed to claim purchase');
+            const error = await response.json();
+            alert(error.message || 'Failed to claim purchase');
         }
     } catch (error) {
         console.error('Error claiming purchase:', error);
-        showErrorMessage('Failed to claim purchase. Please try again.');
+        alert('Failed to claim purchase. Please try again.');
     }
 }
 
-// Contact fisher
-function contactFisher(catchId) {
-    const catchData = allCatches.find(c => c.id === catchId);
-    if (!catchData) return;
-    
-    const subject = `Interested in your ${catchData.species} catch`;
-    const body = `Hello ${catchData.fisherName},\n\nI'm interested in purchasing your ${catchData.species} catch. Please let me know if it's still available and how we can arrange the transaction.\n\nBest regards`;
-    
-    const mailtoLink = `mailto:${catchData.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoLink);
+// Handle contact fisher
+function handleContactFisher() {
+    alert('Contact fisher functionality coming soon!');
 }
 
-// Utility functions
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+// Utility: Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
+// Show/hide loading state
 function showLoadingState() {
     document.getElementById('loadingState').classList.remove('d-none');
-    document.getElementById('noResultsState').classList.add('d-none');
     document.getElementById('catchesGrid').innerHTML = '';
 }
 
@@ -486,6 +772,7 @@ function hideLoadingState() {
     document.getElementById('loadingState').classList.add('d-none');
 }
 
+// Show/hide no results state
 function showNoResultsState() {
     document.getElementById('noResultsState').classList.remove('d-none');
     document.getElementById('catchesGrid').innerHTML = '';
@@ -495,63 +782,15 @@ function hideNoResultsState() {
     document.getElementById('noResultsState').classList.add('d-none');
 }
 
+// Show error state
 function showErrorState(message) {
-    hideLoadingState();
     const grid = document.getElementById('catchesGrid');
     grid.innerHTML = `
-        <div class="col-12">
-            <div class="alert alert-danger text-center">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                ${message}
-            </div>
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+            <h4 class="mt-3 text-danger">Error</h4>
+            <p class="text-muted">${message}</p>
         </div>
     `;
-}
-
-function showSuccessMessage(message) {
-    // Create and show success toast
-    const toast = document.createElement('div');
-    toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed top-0 end-0 m-3';
-    toast.style.zIndex = '9999';
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-check-circle me-2"></i>${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-    
-    document.body.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-    
-    // Remove toast after it's hidden
-    toast.addEventListener('hidden.bs.toast', () => {
-        document.body.removeChild(toast);
-    });
-}
-
-function showErrorMessage(message) {
-    // Create and show error toast
-    const toast = document.createElement('div');
-    toast.className = 'toast align-items-center text-white bg-danger border-0 position-fixed top-0 end-0 m-3';
-    toast.style.zIndex = '9999';
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">
-                <i class="bi bi-exclamation-triangle me-2"></i>${message}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-    
-    document.body.appendChild(toast);
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-    
-    // Remove toast after it's hidden
-    toast.addEventListener('hidden.bs.toast', () => {
-        document.body.removeChild(toast);
-    });
+    hideLoadingState();
 }
