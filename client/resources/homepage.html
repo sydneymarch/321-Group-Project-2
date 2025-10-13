@@ -92,10 +92,10 @@
                     
                     <!-- CTA Buttons -->
                     <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center animate__animated animate__fadeInUp animate__delay-5s">
-                        <a href="marketplace.html" class="btn btn-primary btn-lg px-4">
+                        <a href="#" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#signupModal">
                             <i class="bi bi-shop me-2"></i>Browse Marketplace
                         </a>
-                        <a href="fisher.html" class="btn btn-primary btn-lg px-4">
+                        <a href="#" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#signupModal">
                             <i class="bi bi-person-check me-2"></i>Get Verified
                         </a>
                     </div>
@@ -157,7 +157,7 @@
                                     <p class="card-text mb-4">
                                         Create your profile and start verifying your catches with AI-powered authentication. Build trust with buyers and get fair prices for sustainable fishing.
                                     </p>
-                                    <a href="fisher.html" class="btn btn-primary btn-lg px-4">
+                                    <a href="#" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#signupModal">
                                         <i class="bi bi-person-plus me-2"></i>Create Fisher Profile
                                     </a>
                                 </div>
@@ -171,7 +171,7 @@
                                     <p class="card-text mb-4">
                                         Browse verified catches from trusted fishers. Access complete traceability data and make responsible purchasing decisions with confidence.
                                     </p>
-                                    <a href="marketplace.html" class="btn btn-primary btn-lg px-4">
+                                    <a href="#" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#signupModal">
                                         <i class="bi bi-eye me-2"></i>Browse Marketplace
                                     </a>
                                 </div>
@@ -193,10 +193,279 @@
         </div>
     </footer>
 
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="loginModalLabel">
+                        <i class="bi bi-box-arrow-in-right me-2 text-primary"></i>Login to SeaTrue
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Don't have an account? 
+                            <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#signupModal" class="text-primary">Sign up</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="signupModalLabel">
+                        <i class="bi bi-person-plus me-2 text-primary"></i>Create Your SeaTrue Account
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="signupForm">
+                        <!-- Basic Information -->
+                        <h6 class="text-primary mb-3"><i class="bi bi-person-circle me-2"></i>Basic Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="signupEmail" class="form-label">Email address *</label>
+                                <input type="email" class="form-control" id="signupEmail" name="email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="signupPassword" class="form-label">Password *</label>
+                                <input type="password" class="form-control" id="signupPassword" name="password" required minlength="6">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phoneNumber" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="signupRole" class="form-label">I am a *</label>
+                                <select class="form-select" id="signupRole" name="role" required>
+                                    <option value="">Select your role...</option>
+                                    <option value="Fisher">Fisher</option>
+                                    <option value="Buyer">Buyer</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fisher-Specific Fields -->
+                        <div id="fisherSpecificFields" style="display: none;">
+                            <h6 class="text-primary mb-3"><i class="bi bi-fish me-2"></i>Fisher Information</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="nationalId" class="form-label">National ID</label>
+                                    <input type="text" class="form-control" id="nationalId" name="nationalId">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth">
+                                </div>
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city" name="city">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="state" class="form-label">State</label>
+                                    <input type="text" class="form-control" id="state" name="state">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="country" class="form-label">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country" value="USA">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="postalCode" class="form-label">Postal Code</label>
+                                    <input type="text" class="form-control" id="postalCode" name="postalCode">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="yearsOfExperience" class="form-label">Years of Experience</label>
+                                    <input type="number" class="form-control" id="yearsOfExperience" name="yearsOfExperience" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="primaryFishingMethod" class="form-label">Primary Fishing Method</label>
+                                    <select class="form-select" id="primaryFishingMethod" name="primaryFishingMethod">
+                                        <option value="">Select method...</option>
+                                        <option value="Line fishing">Line fishing</option>
+                                        <option value="Net fishing">Net fishing</option>
+                                        <option value="Trap fishing">Trap fishing</option>
+                                        <option value="Trolling">Trolling</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="homePort" class="form-label">Home Port</label>
+                                    <input type="text" class="form-control" id="homePort" name="homePort">
+                                </div>
+                            </div>
+
+                            <!-- License Details -->
+                            <h6 class="text-primary mb-3"><i class="bi bi-card-list me-2"></i>License Details</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="licenseNumber" class="form-label">License Number</label>
+                                    <input type="text" class="form-control" id="licenseNumber" name="licenseNumber">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="licenseType" class="form-label">License Type</label>
+                                    <select class="form-select" id="licenseType" name="licenseType">
+                                        <option value="">Select type...</option>
+                                        <option value="Commercial">Commercial</option>
+                                        <option value="Small-scale">Small-scale</option>
+                                        <option value="Artisanal">Artisanal</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="issuingAuthority" class="form-label">Issuing Authority</label>
+                                    <input type="text" class="form-control" id="issuingAuthority" name="issuingAuthority">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="licenseCountry" class="form-label">Issuing Country</label>
+                                    <input type="text" class="form-control" id="licenseCountry" name="licenseCountry" value="USA">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="licenseIssueDate" class="form-label">Issue Date</label>
+                                    <input type="date" class="form-control" id="licenseIssueDate" name="licenseIssueDate">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="licenseExpiryDate" class="form-label">Expiry Date</label>
+                                    <input type="date" class="form-control" id="licenseExpiryDate" name="licenseExpiryDate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Buyer-Specific Fields -->
+                        <div id="buyerSpecificFields" style="display: none;">
+                            <h6 class="text-primary mb-3"><i class="bi bi-shop me-2"></i>Buyer Information</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="buyerType" class="form-label">Buyer Type</label>
+                                    <select class="form-select" id="buyerType" name="buyerType">
+                                        <option value="Individual">Individual</option>
+                                        <option value="Restaurant">Restaurant</option>
+                                        <option value="Wholesaler">Wholesaler</option>
+                                        <option value="Retailer">Retailer</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="buyerDob" class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" id="buyerDob" name="dateOfBirth">
+                                </div>
+                                <div class="col-12">
+                                    <label for="deliveryAddress" class="form-label">Preferred Delivery Address</label>
+                                    <textarea class="form-control" id="deliveryAddress" name="deliveryAddress" rows="2"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Organization Details (Optional) -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="hasOrganization" name="hasOrganization">
+                                <label class="form-check-label" for="hasOrganization">
+                                    I'm representing an organization
+                                </label>
+                            </div>
+
+                            <div id="organizationFields" style="display: none;">
+                                <h6 class="text-primary mb-3"><i class="bi bi-building me-2"></i>Organization Details</h6>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label for="organizationName" class="form-label">Organization Name</label>
+                                        <input type="text" class="form-control" id="organizationName" name="organizationName">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="organizationType" class="form-label">Organization Type</label>
+                                        <input type="text" class="form-control" id="organizationType" name="organizationType" placeholder="e.g., Restaurant, Wholesaler">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="registrationNumber" class="form-label">Registration Number</label>
+                                        <input type="text" class="form-control" id="registrationNumber" name="registrationNumber">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="taxId" class="form-label">Tax ID</label>
+                                        <input type="text" class="form-control" id="taxId" name="taxId">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="orgAddress" class="form-label">Address</label>
+                                        <input type="text" class="form-control" id="orgAddress" name="orgAddress">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="orgCity" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="orgCity" name="orgCity">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="orgState" class="form-label">State</label>
+                                        <input type="text" class="form-control" id="orgState" name="orgState">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="orgCountry" class="form-label">Country</label>
+                                        <input type="text" class="form-control" id="orgCountry" name="orgCountry" value="USA">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="orgPostalCode" class="form-label">Postal Code</label>
+                                        <input type="text" class="form-control" id="orgPostalCode" name="orgPostalCode">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="orgPhone" class="form-label">Phone</label>
+                                        <input type="tel" class="form-control" id="orgPhone" name="orgPhone">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="orgEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="orgEmail" name="orgEmail">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="bi bi-check-circle me-2"></i>Create Account
+                        </button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Already have an account? 
+                            <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal" class="text-primary">Login</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Authentication JS -->
+    <script src="scripts/auth.js"></script>
     <!-- Custom JavaScript -->
     <script src="scripts/homepage.js"></script>
+    <script>
+        // Toggle organization fields
+        document.getElementById('hasOrganization')?.addEventListener('change', function(e) {
+            document.getElementById('organizationFields').style.display = e.target.checked ? 'block' : 'none';
+        });
+    </script>
 </body>
-</html>
 </html>
