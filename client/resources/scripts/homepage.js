@@ -30,26 +30,25 @@ async function initializeStats() {
 // Fetch stats from API
 async function fetchStats() {
     try {
-        // Try to fetch from real API first
-        const response = await fetch('/api/SeaTrue/stats');
+        // Fetch from real API
+        const response = await fetch('http://localhost:5142/api/SeaTrue/stats');
         if (response.ok) {
             const data = await response.json();
             return {
-                verifiedCatches: data.VerifiedCatches,
-                activeFishers: data.ActiveFishers,
-                fairTradeValue: Math.round(data.TotalValue),
+                verifiedCatches: data.verifiedCatches,
+                activeFishers: data.activeFishers,
+                fairTradeValue: Math.round(data.totalValue),
             };
         } else {
-            throw new Error('API not available');
+            throw new Error('Failed to fetch stats from API');
         }
     } catch (error) {
-        console.warn('API not available, using mock data:', error);
-        // Fallback to mock data
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.error('Error fetching stats from API:', error);
+        // Return zeros if API fails
         return {
-            verifiedCatches: 12842,
-            activeFishers: 156,
-            fairTradeValue: 187000,
+            verifiedCatches: 0,
+            activeFishers: 0,
+            fairTradeValue: 0,
         };
     }
 }
@@ -144,13 +143,13 @@ function initializeSmoothScrolling() {
 
 // Utility functions for future API integration
 class SeaTrueAPI {
-    constructor(baseURL = '/api') {
+    constructor(baseURL = 'http://localhost:5142/api') {
         this.baseURL = baseURL;
     }
     
     async getStats() {
         try {
-            const response = await fetch(`${this.baseURL}/stats`);
+            const response = await fetch(`${this.baseURL}/SeaTrue/stats`);
             if (!response.ok) throw new Error('Failed to fetch stats');
             return await response.json();
         } catch (error) {
@@ -161,7 +160,7 @@ class SeaTrueAPI {
     
     async getVerifiedCatches() {
         try {
-            const response = await fetch(`${this.baseURL}/catches`);
+            const response = await fetch(`${this.baseURL}/SeaTrue/catches`);
             if (!response.ok) throw new Error('Failed to fetch catches');
             return await response.json();
         } catch (error) {

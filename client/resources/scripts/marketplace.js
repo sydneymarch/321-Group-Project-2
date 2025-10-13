@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 let allCatches = [];
 let filteredCatches = [];
 let currentCatchId = null;
-const API_BASE_URL = 'http://localhost:5142/api/SeaTrue';
+const MARKETPLACE_API_URL = 'http://localhost:5142/api/SeaTrue';
 
 // Filter state
 let filterState = {
@@ -58,7 +58,7 @@ async function initializeMarketplace() {
 // Load catches from API
 async function loadCatches() {
     try {
-        const response = await fetch(`${API_BASE_URL}/catches`);
+        const response = await fetch(`${MARKETPLACE_API_URL}/catches`);
         if (response.ok) {
             allCatches = await response.json();
             filteredCatches = [...allCatches];
@@ -74,7 +74,7 @@ async function loadCatches() {
 // Load species options dynamically
 async function loadSpeciesOptions() {
     try {
-        const response = await fetch(`${API_BASE_URL}/species`);
+        const response = await fetch(`${MARKETPLACE_API_URL}/species`);
         if (response.ok) {
             const species = await response.json();
             const container = document.getElementById('speciesCheckboxes');
@@ -98,7 +98,7 @@ async function loadSpeciesOptions() {
 // Load location options dynamically
 async function loadLocationOptions() {
     try {
-        const response = await fetch(`${API_BASE_URL}/locations`);
+        const response = await fetch(`${MARKETPLACE_API_URL}/locations`);
         if (response.ok) {
             const locations = await response.json();
             const container = document.getElementById('locationCheckboxes');
@@ -344,10 +344,10 @@ function applyAllFilters() {
     filteredCatches = allCatches.filter(catchItem => {
         // Search filter
         const matchesSearch = !filterState.searchTerm || 
-            catchItem.species.toLowerCase().includes(filterState.searchTerm) ||
-            catchItem.location.toLowerCase().includes(filterState.searchTerm) ||
-            catchItem.fisherName.toLowerCase().includes(filterState.searchTerm) ||
-            catchItem.scientificName.toLowerCase().includes(filterState.searchTerm);
+            (catchItem.species || '').toLowerCase().includes(filterState.searchTerm) ||
+            (catchItem.location || '').toLowerCase().includes(filterState.searchTerm) ||
+            (catchItem.fisherName || '').toLowerCase().includes(filterState.searchTerm) ||
+            (catchItem.scientificName || '').toLowerCase().includes(filterState.searchTerm);
         
         // Price filter
         const totalPrice = (catchItem.price || 0) * (catchItem.weight || 0);
@@ -595,7 +595,7 @@ function createCatchCard(catchItem) {
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="catch-price">$${totalPrice}</div>
                         <div>
-                            ${catchItem.verified ? '<i class="bi bi-shield-check text-success" title="Verified"></i>' : ''}
+                            ${(catchItem.isAIVerified || catchItem.isAdminVerified) ? '<i class="bi bi-shield-check text-success" title="Verified"></i>' : ''}
                         </div>
                     </div>
                     
@@ -624,7 +624,7 @@ function getConservationBadgeClass(status) {
 // Show catch details modal
 async function showCatchDetails(catchId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/catches/${catchId}`);
+        const response = await fetch(`${MARKETPLACE_API_URL}/catches/${catchId}`);
             if (response.ok) {
             const catchData = await response.json();
             currentCatchId = catchId;
@@ -687,7 +687,7 @@ function displayCatchDetailsModal(catchData) {
                 </table>
                 
                 <div class="mt-3">
-                    ${catchData.verified ? '<span class="badge bg-success"><i class="bi bi-shield-check"></i> Verified</span>' : ''}
+                    ${(catchData.isAIVerified || catchData.isAdminVerified) ? '<span class="badge bg-success"><i class="bi bi-shield-check"></i> Verified</span>' : ''}
                 </div>
                 
                 ${catchData.description ? `
@@ -723,7 +723,7 @@ async function handleClaimPurchase() {
     if (!currentCatchId) return;
     
     try {
-        const response = await fetch(`${API_BASE_URL}/catches/${currentCatchId}/claim`, {
+        const response = await fetch(`${MARKETPLACE_API_URL}/catches/${currentCatchId}/claim`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ BuyerID: 1 }) // Hardcoded for demo

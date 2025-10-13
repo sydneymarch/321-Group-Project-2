@@ -345,9 +345,9 @@ namespace api.Controllers
                             VerifiedCatches = reader.GetInt32(1),
                             ActiveFishers = reader.GetInt32(2),
                             TotalValue = reader.IsDBNull(3) ? 0 : Math.Round(reader.GetDouble(3), 2)
-            };
+                        };
 
-            return Ok(stats);
+                        return Ok(stats);
                     }
                 }
             }

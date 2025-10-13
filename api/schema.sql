@@ -391,6 +391,10 @@ CREATE TABLE BuyerProfile (
     -- Buyer Type
     BuyerType VARCHAR(100) NOT NULL, -- e.g., "Restaurant", "Wholesaler", "Individual"
     
+    -- Personal Information
+    DateOfBirth DATE,
+    PreferredDeliveryAddress TEXT,
+    
     -- Preferences
     PreferredSpecies TEXT, -- JSON array of SpeciesIDs
     MaxPricePerKG DECIMAL(10,2),
