@@ -3,9 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>SeaTrue - Admin Dashboard</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/admin.css">
 </head>
 <body>
-    
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="homepage.html">
+                <i class="bi bi-water me-2"></i>SeaTrue Admin
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-bell-fill"></i>
+                            <span class="badge bg-danger" id="notificationCount">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" id="notificationsList">
+                            <li><a class="dropdown-item" href="#">No new notifications</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <i class="bi bi-person-circle me-1"></i>Admin User
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard" data-section="dashboard">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#fishers" data-section="fishers">
+                                <i class="bi bi-people-fill me-2"></i>Fishers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#catches" data-section="catches">
+                                <i class="bi bi-basket3-fill me-2"></i>Catches
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#orders" data-section="orders">
+                                <i class="bi bi-cart-fill me-2"></i>Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reports" data-section="reports">
+                                <i class="bi bi-file-earmark-bar-graph me-2"></i>Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#audit" data-section="audit">
+                                <i class="bi bi-journal-text me-2"></i>Audit Log
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="content-section active">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Dashboard</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="refreshDashboard()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-icon bg-success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="certifiedFishersCount">0</h3>
+                                    <p>Certified Fishers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-icon bg-info">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="verifiedCatchesCount">0</h3>
+                                    <p>Verified Catches</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-icon bg-warning">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="flaggedCatchesCount">0</h3>
+                                    <p>Flagged Catches</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-icon bg-primary">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h3 id="avgTrustScoreDisplay">0%</h3>
+                                    <p>Avg Trust Score</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="chart-card">
+                                <h5>Fisher Status Distribution</h5>
+                                <canvas id="fisherStatusChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-card">
+                                <h5>Catches Over Time (30 Days)</h5>
+                                <canvas id="catchesTimeChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="chart-card">
+                                <h5>Average AI Confidence by Species</h5>
+                                <canvas id="speciesConfidenceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="row g-4 mt-2">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent System Activity</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recentActivity" class="activity-list">
+                                        <p class="text-muted">Loading recent activity...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fishers Section -->
+                <section id="fishers-section" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Fisher Management</h1>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select" id="fisherStatusFilter" onchange="loadFishers()">
+                                <option value="">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="PreVerified">Pre-Verified</option>
+                                <option value="Certified">Certified</option>
+                                <option value="Suspended">Suspended</option>
+                                <option value="Revoked">Revoked</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="fisherSearch" placeholder="Search by name or email..." onkeyup="loadFishers()">
+                        </div>
+                    </div>
+
+                    <!-- Fishers Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>License Expiry</th>
+                                    <th>Status</th>
+                                    <th>Trust Score</th>
+                                    <th>Home Port</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fishersTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Catches Section -->
+                <section id="catches-section" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Catch Verification</h1>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select" id="catchFilterType" onchange="loadCatches()">
+                                <option value="">All Catches</option>
+                                <option value="flagged">Flagged for Review</option>
+                                <option value="unverified">Pending Verification</option>
+                                <option value="verified">Verified</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Catches Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Species</th>
+                                    <th>Weight (kg)</th>
+                                    <th>Fisher</th>
+                                    <th>Date</th>
+                                    <th>AI Score</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catchesTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Orders Section -->
+                <section id="orders-section" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Order Management</h1>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select" id="orderStatusFilter" onchange="loadOrders()">
+                                <option value="">All Orders</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="InTransit">In Transit</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Species</th>
+                                    <th>Fisher</th>
+                                    <th>Buyer</th>
+                                    <th>Quantity</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports-section" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Data Export & Reports</h1>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Export Catch Data</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Export all catch records with verification data for regulatory reporting.</p>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary" onclick="exportData('catches', 'json')">
+                                            <i class="bi bi-download me-1"></i>Export JSON
+                                        </button>
+                                        <button class="btn btn-outline-primary" onclick="exportData('catches', 'csv')">
+                                            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Export Fisher Data</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted">Export fisher profiles, certifications, and trust scores.</p>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary" onclick="exportData('fishers', 'json')">
+                                            <i class="bi bi-download me-1"></i>Export JSON
+                                        </button>
+                                        <button class="btn btn-outline-primary" onclick="exportData('fishers', 'csv')">
+                                            <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Sustainability Metrics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <div class="sustainability-metric">
+                                                <h3 id="totalFishersMetric">0</h3>
+                                                <p>Total Fishers</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="sustainability-metric">
+                                                <h3 id="totalCatchesMetric">0</h3>
+                                                <p>Total Catches Logged</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="sustainability-metric">
+                                                <h3 id="totalOrdersMetric">0</h3>
+                                                <p>Total Orders</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="sustainability-metric">
+                                                <h3 id="verificationRateMetric">0%</h3>
+                                                <p>Verification Rate</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Audit Log Section -->
+                <section id="audit-section" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Audit Log</h1>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>Entity</th>
+                                    <th>Status</th>
+                                    <th>Admin</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditLogTableBody">
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Fisher Detail Modal -->
+    <div class="modal fade" id="fisherDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fisher Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="fisherDetailContent">
+                    Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Catch Detail Modal -->
+    <div class="modal fade" id="catchDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Catch Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="catchDetailContent">
+                    Loading...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="verifyCatchBtn" style="display:none;">
+                        <i class="bi bi-check-circle me-1"></i>Verify Catch
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revoke Confirmation Modal -->
+    <div class="modal fade" id="revokeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Revoke Fisher Certification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to revoke this fisher's certification?</p>
+                    <div class="mb-3">
+                        <label for="revokeReason" class="form-label">Reason for revocation:</label>
+                        <textarea class="form-control" id="revokeReason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRevokeBtn">Revoke Certification</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="scripts/admin.js?v=2"></script>
 </body>
 </html>
