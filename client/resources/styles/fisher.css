@@ -748,3 +748,193 @@ textarea {
         font-size: 2rem;
     }
 }
+
+/* Species Autocomplete Dropdown */
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 0 0 4px 4px;
+}
+
+.autocomplete-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:hover, .autocomplete-item.active {
+    background-color: #f8f9fa;
+}
+
+.autocomplete-item.loading {
+    color: #6c757d;
+    font-style: italic;
+    cursor: default;
+}
+
+.autocomplete-item .species-name {
+    font-weight: 500;
+    color: #023e8a;
+    display: block;
+}
+
+.autocomplete-item .species-scientific {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-style: italic;
+    display: block;
+    margin-top: 2px;
+}
+
+.autocomplete-item .species-info {
+    font-size: 0.8rem;
+    color: #28a745;
+    display: block;
+    margin-top: 4px;
+}
+
+.autocomplete-item .species-source {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: #e9ecef;
+    color: #495057;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.autocomplete-item .species-source.database {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.autocomplete-item .species-source.gbif {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.autocomplete-no-results {
+    padding: 12px 15px;
+    color: #6c757d;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Size validation warning */
+.size-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+    display: none;
+}
+
+.size-warning.show {
+    display: block;
+}
+
+.size-warning i {
+    color: #856404;
+    margin-right: 8px;
+}
+
+.size-warning-text {
+    color: #856404;
+    font-size: 0.9rem;
+}
+
+/* Search GBIF Button in Autocomplete */
+.autocomplete-item.search-gbif-btn {
+    background-color: #f8f9fa;
+    border-top: 2px solid #dee2e6;
+    padding: 14px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.autocomplete-item.search-gbif-btn:hover {
+    background-color: #e9ecef;
+}
+
+.autocomplete-item.search-gbif-btn i {
+    color: #0077b6;
+    font-size: 1.1rem;
+}
+
+.autocomplete-item.search-gbif-btn .species-name {
+    color: #0077b6;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Conservation Status Badges */
+.conservation-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.conservation-badge.lc,
+.conservation-badge.least-concern {
+    background-color: #28a745;
+    color: white;
+}
+
+.conservation-badge.nt,
+.conservation-badge.near-threatened {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.conservation-badge.vu,
+.conservation-badge.vulnerable {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.conservation-badge.en,
+.conservation-badge.endangered {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.conservation-badge.cr,
+.conservation-badge.critically-endangered {
+    background-color: #dc3545;
+    color: white;
+}
+
+.conservation-badge.ew,
+.conservation-badge.extinct-in-the-wild {
+    background-color: #6c757d;
+    color: white;
+}
+
+.conservation-badge.ex,
+.conservation-badge.extinct {
+    background-color: #343a40;
+    color: white;
+}
+
+.conservation-badge.dd,
+.conservation-badge.data-deficient {
+    background-color: #6c757d;
+    color: white;
+}

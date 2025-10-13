@@ -146,6 +146,12 @@ namespace api.Controllers
         [HttpPost("fishers/{fisherId}/approve")]
         public async Task<IActionResult> ApproveFisher(int fisherId)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Not authenticated" });
+            }
+
             try
             {
                 using var connection = new SqliteConnection(_connectionString);
@@ -158,14 +164,15 @@ namespace api.Controllers
                     UPDATE FisherProfile 
                     SET CertificationStatus = 'Certified',
                         CertifiedAt = CURRENT_TIMESTAMP,
-                        CertifiedBy = 1
+                        CertifiedBy = @adminId
                     WHERE FisherID = @fisherId
                 ", connection, transaction);
                 updateCommand.Parameters.AddWithValue("@fisherId", fisherId);
+                updateCommand.Parameters.AddWithValue("@adminId", userId.Value);
                 await updateCommand.ExecuteNonQueryAsync();
 
                 // Log the action
-                await LogAdminAction(connection, transaction, 1, "ApproveFisher", fisherId, "Fisher approved and certified");
+                await LogAdminAction(connection, transaction, userId.Value, "ApproveFisher", fisherId, "Fisher approved and certified");
 
                 transaction.Commit();
 
@@ -180,6 +187,12 @@ namespace api.Controllers
         [HttpPost("fishers/{fisherId}/revoke")]
         public async Task<IActionResult> RevokeFisher(int fisherId, [FromBody] RevokeRequest request)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Not authenticated" });
+            }
+
             try
             {
                 using var connection = new SqliteConnection(_connectionString);
@@ -199,7 +212,7 @@ namespace api.Controllers
                 await updateCommand.ExecuteNonQueryAsync();
 
                 // Log the action
-                await LogAdminAction(connection, transaction, 1, "RevokeFisher", fisherId, $"Fisher certification revoked: {request.Reason}");
+                await LogAdminAction(connection, transaction, userId.Value, "RevokeFisher", fisherId, $"Fisher certification revoked: {request.Reason}");
 
                 transaction.Commit();
 
@@ -676,6 +689,12 @@ namespace api.Controllers
         [HttpPost("catches/{catchId}/verify")]
         public async Task<IActionResult> VerifyCatch(int catchId, [FromBody] VerifyCatchRequest request)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Not authenticated" });
+            }
+
             try
             {
                 using var connection = new SqliteConnection(_connectionString);
@@ -687,17 +706,18 @@ namespace api.Controllers
                 var updateCommand = new SqliteCommand(@"
                     UPDATE CatchRecord 
                     SET IsAdminVerified = 1,
-                        VerifiedBy = 1,
+                        VerifiedBy = @adminId,
                         VerifiedAt = CURRENT_TIMESTAMP,
                         VerificationNotes = @notes
                     WHERE CatchID = @catchId
                 ", connection, transaction);
                 updateCommand.Parameters.AddWithValue("@catchId", catchId);
+                updateCommand.Parameters.AddWithValue("@adminId", userId.Value);
                 updateCommand.Parameters.AddWithValue("@notes", request.Notes ?? "Admin verified");
                 await updateCommand.ExecuteNonQueryAsync();
 
                 // Log the action
-                await LogAdminAction(connection, transaction, 1, "VerifyCatch", catchId, "Catch manually verified by admin");
+                await LogAdminAction(connection, transaction, userId.Value, "VerifyCatch", catchId, "Catch manually verified by admin");
 
                 transaction.Commit();
 
@@ -895,14 +915,19 @@ namespace api.Controllers
                 }
 
                 // Log export action
-                using var transaction = connection.BeginTransaction();
-                var logCommand = new SqliteCommand(@"
-                    INSERT INTO SharedDataLog (DataType, RecipientType, IsAnonymized, DataFormat, SharedBy, Description)
-                    VALUES ('Catch Data', 'Export', 0, @format, 1, 'Admin exported catch data')
-                ", connection, transaction);
-                logCommand.Parameters.AddWithValue("@format", format.ToUpper());
-                await logCommand.ExecuteNonQueryAsync();
-                transaction.Commit();
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId.HasValue)
+                {
+                    using var transaction = connection.BeginTransaction();
+                    var logCommand = new SqliteCommand(@"
+                        INSERT INTO SharedDataLog (DataType, RecipientType, IsAnonymized, DataFormat, SharedBy, Description)
+                        VALUES ('Catch Data', 'Export', 0, @format, @userId, 'Admin exported catch data')
+                    ", connection, transaction);
+                    logCommand.Parameters.AddWithValue("@format", format.ToUpper());
+                    logCommand.Parameters.AddWithValue("@userId", userId.Value);
+                    await logCommand.ExecuteNonQueryAsync();
+                    transaction.Commit();
+                }
 
                 if (format.ToLower() == "csv")
                 {
@@ -968,14 +993,19 @@ namespace api.Controllers
                 }
 
                 // Log export
-                using var transaction = connection.BeginTransaction();
-                var logCommand = new SqliteCommand(@"
-                    INSERT INTO SharedDataLog (DataType, RecipientType, IsAnonymized, DataFormat, SharedBy, Description)
-                    VALUES ('Fisher Data', 'Export', 0, @format, 1, 'Admin exported fisher data')
-                ", connection, transaction);
-                logCommand.Parameters.AddWithValue("@format", format.ToUpper());
-                await logCommand.ExecuteNonQueryAsync();
-                transaction.Commit();
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId.HasValue)
+                {
+                    using var transaction = connection.BeginTransaction();
+                    var logCommand = new SqliteCommand(@"
+                        INSERT INTO SharedDataLog (DataType, RecipientType, IsAnonymized, DataFormat, SharedBy, Description)
+                        VALUES ('Fisher Data', 'Export', 0, @format, @userId, 'Admin exported fisher data')
+                    ", connection, transaction);
+                    logCommand.Parameters.AddWithValue("@format", format.ToUpper());
+                    logCommand.Parameters.AddWithValue("@userId", userId.Value);
+                    await logCommand.ExecuteNonQueryAsync();
+                    transaction.Commit();
+                }
 
                 if (format.ToLower() == "csv")
                 {

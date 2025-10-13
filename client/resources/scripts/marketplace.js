@@ -722,21 +722,41 @@ function initializeModals() {
 async function handleClaimPurchase() {
     if (!currentCatchId) return;
     
+    // Check if user is authenticated
+    if (typeof authManager === 'undefined' || !authManager.currentUser) {
+        alert('Please login as a buyer to claim purchases.');
+        // Show login modal if available
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+            const modal = new bootstrap.Modal(loginModal);
+            modal.show();
+        }
+        return;
+    }
+    
+    // Check if user is a buyer
+    if (authManager.currentUser.role !== 'Buyer') {
+        alert('Only buyers can claim purchases. Please login with a buyer account.');
+        return;
+    }
+    
     try {
         const response = await fetch(`${MARKETPLACE_API_URL}/catches/${currentCatchId}/claim`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ BuyerID: 1 }) // Hardcoded for demo
+            body: JSON.stringify({}) // Buyer ID comes from session
         });
         
+        const result = await response.json();
+        
         if (response.ok) {
-            alert('Purchase claimed successfully! The fisher has been notified.');
+            alert(`Purchase claimed successfully! Order ID: ${result.orderId}. Total: $${result.totalPrice}. Expected delivery: ${result.expectedDelivery}`);
             bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal')).hide();
             await loadCatches();
             applyAllFilters();
         } else {
-            const error = await response.json();
-            alert(error.message || 'Failed to claim purchase');
+            alert(result.message || 'Failed to claim purchase');
         }
     } catch (error) {
         console.error('Error claiming purchase:', error);
