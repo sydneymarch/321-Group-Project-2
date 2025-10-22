@@ -1,18 +1,23 @@
 {
   "version": 2,
-  "dgSpecHash": "BEdyQsZEAes=",
+  "dgSpecHash": "SIVpc9tEPtk=",
   "success": true,
   "projectFilePath": "/Users/sydneymarch/Documents/Fall 2025/MIS321/GroupProject/321-Group-Project-2/321-Group-Project-2/api/api.csproj",
   "expectedPackageFiles": [
     "/Users/sydneymarch/.nuget/packages/microsoft.aspnetcore.openapi/9.0.8/microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/microsoft.data.sqlite/9.0.9/microsoft.data.sqlite.9.0.9.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/microsoft.data.sqlite.core/9.0.9/microsoft.data.sqlite.core.9.0.9.nupkg.sha512",
+    "/Users/sydneymarch/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "/Users/sydneymarch/.nuget/packages/microsoft.extensions.logging.abstractions/8.0.3/microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512",
+    "/Users/sydneymarch/.nuget/packages/openai/2.5.0/openai.2.5.0.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.10/sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/sqlitepclraw.core/2.1.10/sqlitepclraw.core.2.1.10.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.10/sqlitepclraw.lib.e_sqlite3.2.1.10.nupkg.sha512",
     "/Users/sydneymarch/.nuget/packages/sqlitepclraw.provider.e_sqlite3/2.1.10/sqlitepclraw.provider.e_sqlite3.2.1.10.nupkg.sha512",
-    "/Users/sydneymarch/.nuget/packages/system.memory/4.5.3/system.memory.4.5.3.nupkg.sha512"
+    "/Users/sydneymarch/.nuget/packages/system.clientmodel/1.6.1/system.clientmodel.1.6.1.nupkg.sha512",
+    "/Users/sydneymarch/.nuget/packages/system.memory/4.5.3/system.memory.4.5.3.nupkg.sha512",
+    "/Users/sydneymarch/.nuget/packages/system.memory.data/8.0.1/system.memory.data.8.0.1.nupkg.sha512"
   ],
   "logs": []
 }
