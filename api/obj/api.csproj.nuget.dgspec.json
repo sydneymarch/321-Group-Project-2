@@ -56,6 +56,10 @@
             "OpenAI": {
               "target": "Package",
               "version": "[2.5.0, )"
+            },
+            "dotenv.net": {
+              "target": "Package",
+              "version": "[4.0.0, )"
             }
           },
           "imports": [
