@@ -706,11 +706,11 @@ function displayCatchDetailsModal(catchData) {
 
 // Initialize modals
 function initializeModals() {
-    const claimBtn = document.getElementById('claimPurchase');
+    const addToCartBtn = document.getElementById('addToCartBtn');
     const contactBtn = document.getElementById('contactFisher');
     
-    if (claimBtn) {
-        claimBtn.addEventListener('click', handleClaimPurchase);
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', handleAddToCart);
     }
     
     if (contactBtn) {
@@ -718,29 +718,45 @@ function initializeModals() {
     }
 }
 
-// Handle claim purchase
-async function handleClaimPurchase() {
+// Handle add to cart
+function handleAddToCart() {
     if (!currentCatchId) return;
     
-    try {
-        const response = await fetch(`${MARKETPLACE_API_URL}/catches/${currentCatchId}/claim`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ BuyerID: 1 }) // Hardcoded for demo
-        });
+    // Find the current catch data (API returns "id" lowercase)
+    const catchData = allCatches.find(c => c.id === currentCatchId);
+    
+    if (!catchData) {
+        console.error('Catch not found. currentCatchId:', currentCatchId, 'allCatches:', allCatches);
+        alert('Catch not found');
+        return;
+    }
+    
+    // Normalize property names for cart (cart expects catchId, but API returns id)
+    const normalizedData = {
+        catchId: catchData.id,
+        species: catchData.species,
+        scientificName: catchData.scientificName,
+        weight: catchData.weight,
+        length: catchData.length,
+        price: catchData.price,
+        location: catchData.location,
+        fisherName: catchData.fisherName,
+        fisherId: catchData.fisherId,
+        photoUrl: catchData.imageUrl || catchData.thumbnailUrl,
+        iucnRedListStatus: catchData.conservationStatus
+    };
+    
+    // Add to cart
+    if (typeof shoppingCart !== 'undefined') {
+        shoppingCart.addItem(normalizedData);
         
-        if (response.ok) {
-            alert('Purchase claimed successfully! The fisher has been notified.');
-            bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal')).hide();
-            await loadCatches();
-            applyAllFilters();
-        } else {
-            const error = await response.json();
-            alert(error.message || 'Failed to claim purchase');
+        // Close details modal
+        const detailsModal = bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal'));
+        if (detailsModal) {
+            detailsModal.hide();
         }
-    } catch (error) {
-        console.error('Error claiming purchase:', error);
-        alert('Failed to claim purchase. Please try again.');
+    } else {
+        alert('Shopping cart not available');
     }
 }
 

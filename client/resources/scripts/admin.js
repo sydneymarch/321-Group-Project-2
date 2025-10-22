@@ -10,6 +10,17 @@ let speciesConfidenceChart = null;
 // Current fisher ID for modal actions
 let currentFisherId = null;
 
+// Helper function for authenticated fetch requests
+async function authFetch(url, options = {}) {
+    return fetch(url, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+}
+
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -109,7 +120,12 @@ async function refreshDashboard() {
 
 async function loadDashboardMetrics() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/dashboard/metrics`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/dashboard/metrics`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
         document.getElementById('certifiedFishersCount').textContent = data.certifiedFishers;
@@ -123,7 +139,8 @@ async function loadDashboardMetrics() {
 
 async function loadFisherStatusChart() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/analytics/fisher-status`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/analytics/fisher-status`);
+        if (!response.ok) return;
         const data = await response.json();
         
         const ctx = document.getElementById('fisherStatusChart');
@@ -165,7 +182,8 @@ async function loadFisherStatusChart() {
 
 async function loadCatchesTimeChart() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/analytics/catches-over-time?days=30`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/analytics/catches-over-time?days=30`);
+        if (!response.ok) return;
         const data = await response.json();
         
         const ctx = document.getElementById('catchesTimeChart');
@@ -212,7 +230,7 @@ async function loadCatchesTimeChart() {
 
 async function loadSpeciesConfidenceChart() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/analytics/species-confidence`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/analytics/species-confidence`);
         const data = await response.json();
         
         const ctx = document.getElementById('speciesConfidenceChart');
@@ -260,7 +278,7 @@ async function loadSpeciesConfidenceChart() {
 
 async function loadRecentActivity() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/audit-log?limit=10`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/audit-log?limit=10`);
         const data = await response.json();
         
         const container = document.getElementById('recentActivity');
@@ -340,7 +358,7 @@ async function approveFisher(fisherId) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/fishers/${fisherId}/approve`, {
+        const response = await authFetch(`${API_BASE_URL}/Admin/fishers/${fisherId}/approve`, {
             method: 'POST'
         });
         
@@ -372,7 +390,7 @@ async function revokeFisher() {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/fishers/${currentFisherId}/revoke`, {
+        const response = await authFetch(`${API_BASE_URL}/Admin/fishers/${currentFisherId}/revoke`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -397,7 +415,7 @@ async function revokeFisher() {
 
 async function viewFisherDetails(fisherId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/fishers/${fisherId}/details`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/fishers/${fisherId}/details`);
         const data = await response.json();
         
         if (!response.ok) {
@@ -755,7 +773,7 @@ async function verifyCatch(catchId) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/catches/${catchId}/verify`, {
+        const response = await authFetch(`${API_BASE_URL}/Admin/catches/${catchId}/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -778,7 +796,7 @@ async function verifyCatch(catchId) {
 
 async function viewCatchDetails(catchId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/catches/${catchId}`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/catches/${catchId}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch catch details');
@@ -1008,7 +1026,7 @@ async function loadOrders() {
 
 async function loadReportsData() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/dashboard/metrics`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/dashboard/metrics`);
         const data = await response.json();
         
         document.getElementById('totalFishersMetric').textContent = data.totalFishers;
@@ -1026,7 +1044,7 @@ async function loadReportsData() {
 
 async function exportData(type, format) {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/export/${type}?format=${format}`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/export/${type}?format=${format}`);
         
         if (format === 'csv') {
             const blob = await response.blob();
@@ -1064,7 +1082,7 @@ async function exportData(type, format) {
 
 async function loadAuditLog() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/audit-log?limit=50`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/audit-log?limit=50`);
         const logs = await response.json();
         
         const tbody = document.getElementById('auditLogTableBody');
@@ -1096,7 +1114,7 @@ async function loadAuditLog() {
 
 async function loadNotifications() {
     try {
-        const response = await fetch(`${API_BASE_URL}/Admin/notifications/expiring-licenses?days=30`);
+        const response = await authFetch(`${API_BASE_URL}/Admin/notifications/expiring-licenses?days=30`);
         const licenses = await response.json();
         
         const count = licenses.length;
