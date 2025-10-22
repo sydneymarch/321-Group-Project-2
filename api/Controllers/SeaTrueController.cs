@@ -36,6 +36,7 @@ namespace api.Controllers
                 var command = new SqliteCommand(@"
                     SELECT 
                         c.CatchID,
+                        c.FisherID,
                         s.CommonName as Species,
                         c.WeightKG,
                         c.AverageSizeCM,
@@ -70,33 +71,34 @@ namespace api.Controllers
                     while (await reader.ReadAsync())
                     {
                         // Convert weight from KG to lbs (1 kg = 2.20462 lbs)
-                        var weightLbs = reader.GetDouble(2) * 2.20462;
+                        var weightLbs = reader.GetDouble(3) * 2.20462;
                         // Convert size from CM to inches (1 cm = 0.393701 inches)
-                        var lengthInches = reader.IsDBNull(3) ? 0 : reader.GetDouble(3) * 0.393701;
+                        var lengthInches = reader.IsDBNull(4) ? 0 : reader.GetDouble(4) * 0.393701;
                         // Convert price from per KG to per lb
-                        var pricePerLb = reader.IsDBNull(4) ? 0 : reader.GetDouble(4) / 2.20462;
+                        var pricePerLb = reader.IsDBNull(5) ? 0 : reader.GetDouble(5) / 2.20462;
 
                         catches.Add(new CatchResponse
                         {
                             Id = reader.GetInt32(0),
-                            Species = reader.GetString(1),
+                            FisherId = reader.GetInt32(1),
+                            Species = reader.GetString(2),
                             Weight = Math.Round(weightLbs, 2),
                             Length = Math.Round(lengthInches, 2),
                             Price = Math.Round(pricePerLb, 2),
-                            Location = reader.IsDBNull(5) ? "Unknown" : reader.GetString(5),
-                            CatchDate = reader.GetString(6),
-                            FisherName = reader.GetString(7),
-                            ContactEmail = reader.GetString(8),
-                            Status = reader.IsDBNull(9) ? "fresh" : reader.GetString(9).ToLower(),
-                            Verified = reader.GetBoolean(10) || reader.GetBoolean(11),
-                            StorageMethod = reader.IsDBNull(13) ? "" : reader.GetString(13),
-                            AIConfidenceScore = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
-                            LandingPort = reader.IsDBNull(15) ? "" : reader.GetString(15),
-                            ScientificName = reader.IsDBNull(16) ? "" : reader.GetString(16),
-                            ConservationStatus = reader.IsDBNull(17) ? "" : reader.GetString(17),
-                            ImageUrl = reader.IsDBNull(18) ? "" : reader.GetString(18),
-                            ThumbnailUrl = reader.IsDBNull(19) ? "" : reader.GetString(19),
-                            Description = $"{reader.GetString(1)} caught at {(reader.IsDBNull(15) ? "sea" : reader.GetString(15))}. Conservation Status: {(reader.IsDBNull(17) ? "Unknown" : reader.GetString(17))}. {(reader.IsDBNull(13) ? "" : "Storage: " + reader.GetString(13) + ".")}"
+                            Location = reader.IsDBNull(6) ? "Unknown" : reader.GetString(6),
+                            CatchDate = reader.GetString(7),
+                            FisherName = reader.GetString(8),
+                            ContactEmail = reader.GetString(9),
+                            Status = reader.IsDBNull(10) ? "fresh" : reader.GetString(10).ToLower(),
+                            Verified = reader.GetBoolean(11) || reader.GetBoolean(12),
+                            StorageMethod = reader.IsDBNull(14) ? "" : reader.GetString(14),
+                            AIConfidenceScore = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
+                            LandingPort = reader.IsDBNull(16) ? "" : reader.GetString(16),
+                            ScientificName = reader.IsDBNull(17) ? "" : reader.GetString(17),
+                            ConservationStatus = reader.IsDBNull(18) ? "" : reader.GetString(18),
+                            ImageUrl = reader.IsDBNull(19) ? "" : reader.GetString(19),
+                            ThumbnailUrl = reader.IsDBNull(20) ? "" : reader.GetString(20),
+                            Description = $"{reader.GetString(2)} caught at {(reader.IsDBNull(16) ? "sea" : reader.GetString(16))}. Conservation Status: {(reader.IsDBNull(18) ? "Unknown" : reader.GetString(18))}. {(reader.IsDBNull(14) ? "" : "Storage: " + reader.GetString(14) + ".")}"
                         });
                     }
                 }
@@ -497,6 +499,127 @@ namespace api.Controllers
             }
         }
 
+        // POST: api/SeaTrue/order/create
+        [HttpPost("order/create")]
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+        {
+            // Check authentication
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "Please login to place an order" });
+            }
+
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                // Get buyer ID from user session
+                var buyerCmd = new SqliteCommand(@"
+                    SELECT BuyerID FROM BuyerProfile WHERE UserID = @userId
+                ", connection);
+                buyerCmd.Parameters.AddWithValue("@userId", userId.Value);
+                
+                var buyerIdObj = await buyerCmd.ExecuteScalarAsync();
+                if (buyerIdObj == null)
+                {
+                    return BadRequest(new { message = "User is not a buyer" });
+                }
+
+                int buyerId = Convert.ToInt32(buyerIdObj);
+
+                // Start transaction
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Check if catch is still available
+                        var checkCommand = new SqliteCommand(@"
+                            SELECT IsAvailable, FisherID, WeightKG, PricePerKG
+                            FROM CatchRecord
+                            WHERE CatchID = @catchId
+                        ", connection, transaction);
+                        checkCommand.Parameters.AddWithValue("@catchId", request.CatchId);
+
+                        bool isAvailable;
+                        int fisherID;
+                        double weightKG;
+                        double pricePerKG;
+
+                        using (var reader = await checkCommand.ExecuteReaderAsync())
+                        {
+                            if (!await reader.ReadAsync())
+                            {
+                                return NotFound(new { message = "Catch not found" });
+                            }
+
+                            isAvailable = reader.GetBoolean(0);
+                            fisherID = reader.GetInt32(1);
+                            weightKG = reader.GetDouble(2);
+                            pricePerKG = reader.IsDBNull(3) ? 0 : reader.GetDouble(3);
+                        }
+
+                        if (!isAvailable)
+                        {
+                            return BadRequest(new { message = "Catch is no longer available" });
+                        }
+
+                        // Calculate total price
+                        double totalPrice = weightKG * pricePerKG * request.Quantity;
+
+                        // Create order
+                        var orderCommand = new SqliteCommand(@"
+                            INSERT INTO ""Order"" (CatchID, BuyerID, FisherID, OrderDate, OrderStatus, QuantityKG, PricePerKG, ExpectedDeliveryDate, DeliveryAddress, BuyerNotes)
+                            VALUES (@catchId, @buyerId, @fisherId, @orderDate, @status, @quantityKG, @pricePerKG, @deliveryDate, @deliveryAddress, @buyerNotes)
+                        ", connection, transaction);
+
+                        orderCommand.Parameters.AddWithValue("@catchId", request.CatchId);
+                        orderCommand.Parameters.AddWithValue("@buyerId", buyerId);
+                        orderCommand.Parameters.AddWithValue("@fisherId", fisherID);
+                        orderCommand.Parameters.AddWithValue("@orderDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        orderCommand.Parameters.AddWithValue("@status", "Pending");
+                        orderCommand.Parameters.AddWithValue("@quantityKG", weightKG * request.Quantity);
+                        orderCommand.Parameters.AddWithValue("@pricePerKG", pricePerKG);
+                        orderCommand.Parameters.AddWithValue("@deliveryDate", DateTime.Now.AddDays(3).ToString("yyyy-MM-dd"));
+                        orderCommand.Parameters.AddWithValue("@deliveryAddress", request.ShippingAddress ?? "");
+                        orderCommand.Parameters.AddWithValue("@buyerNotes", request.DeliveryNotes ?? "");
+
+                        await orderCommand.ExecuteNonQueryAsync();
+
+                        // Get the order ID
+                        var orderIdCommand = new SqliteCommand("SELECT last_insert_rowid()", connection, transaction);
+                        var orderId = Convert.ToInt32(await orderIdCommand.ExecuteScalarAsync());
+
+                        // Mark catch as unavailable
+                        var updateCommand = new SqliteCommand(@"
+                            UPDATE CatchRecord 
+                            SET IsAvailable = 0 
+                            WHERE CatchID = @catchId
+                        ", connection, transaction);
+                        updateCommand.Parameters.AddWithValue("@catchId", request.CatchId);
+                        await updateCommand.ExecuteNonQueryAsync();
+
+                        transaction.Commit();
+
+                        return Ok(new
+                        {
+                            message = "Order placed successfully!",
+                            orderId = orderId,
+                            catchId = request.CatchId,
+                            quantity = request.Quantity,
+                            totalPrice = Math.Round(totalPrice, 2),
+                            expectedDeliveryDate = DateTime.Now.AddDays(3).ToString("yyyy-MM-dd")
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return StatusCode(500, new { message = "Error creating order", error = ex.Message });
+                    }
+                }
+            }
+        }
+
         // POST: api/SeaTrue/catches/{id}/contact
         [HttpPost("catches/{id}/contact")]
         public IActionResult ContactFisher(int id, [FromBody] ContactRequest request)
@@ -699,6 +822,7 @@ namespace api.Controllers
     public class CatchResponse
     {
         public int Id { get; set; }
+        public int FisherId { get; set; }
         public string Species { get; set; } = string.Empty;
         public double Weight { get; set; }
         public double Length { get; set; }
@@ -757,5 +881,16 @@ namespace api.Controllers
         public double? MinLength { get; set; } // in inches
         public double? MaxLength { get; set; } // in inches
         public double? AvgWeight { get; set; } // in lbs
+    }
+
+    public class CreateOrderRequest
+    {
+        public int CatchId { get; set; }
+        public int FisherId { get; set; }
+        public int Quantity { get; set; } = 1;
+        public double PricePerKg { get; set; }
+        public double TotalPrice { get; set; }
+        public string? ShippingAddress { get; set; }
+        public string? DeliveryNotes { get; set; }
     }
 }

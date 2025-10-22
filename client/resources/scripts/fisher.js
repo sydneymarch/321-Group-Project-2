@@ -285,6 +285,20 @@ async function initializeSpeciesAutocomplete() {
         debounceTimer = setTimeout(() => searchSpecies(query), 300);
     });
     
+    // Prevent form submission on Enter key in species field
+    speciesInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // If dropdown has results, select the first one
+            const firstResult = dropdown.querySelector('.autocomplete-item:not(.search-gbif-btn)');
+            if (firstResult && dropdown.style.display !== 'none') {
+                firstResult.click();
+            }
+        }
+    });
+    
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!speciesInput.contains(e.target) && !dropdown.contains(e.target)) {
@@ -646,17 +660,27 @@ function displayAutocompleteResults(results, query, isGbifResults = false) {
     }
     
     dropdown.innerHTML = html;
+    dropdown.style.display = 'block'; // Always ensure dropdown is visible
     
     // Add click handlers for results
     dropdown.querySelectorAll('.autocomplete-item:not(.search-gbif-btn)').forEach((item, index) => {
-        item.addEventListener('click', () => selectSpecies(results[index]));
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            selectSpecies(results[index]);
+        });
     });
     
     // Add click handler for GBIF search button
     const gbifBtn = dropdown.querySelector('.search-gbif-btn');
     if (gbifBtn) {
-        gbifBtn.addEventListener('click', async () => {
+        gbifBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
             dropdown.innerHTML = '<div class="autocomplete-item loading">Searching GBIF global database...</div>';
+            dropdown.style.display = 'block'; // Ensure dropdown stays visible
+            
             const gbifResults = await searchGBIFByCommonName(query);
             displayAutocompleteResults(gbifResults, query, true);
         });
@@ -664,25 +688,43 @@ function displayAutocompleteResults(results, query, isGbifResults = false) {
 }
 
 async function selectSpecies(species) {
-    const speciesInput = document.getElementById('species');
-    const dropdown = document.getElementById('species-autocomplete');
-    
-    speciesInput.value = species.name;
-    selectedSpeciesInfo = species;
-    dropdown.style.display = 'none';
-    
-    // If from GBIF, add to database (but don't reload - just update source)
-    if (species.source === 'gbif') {
-        const addResult = await addSpeciesToDatabase(species);
-        if (addResult) {
-            // Update species to mark it as now in database
-            selectedSpeciesInfo.source = 'database';
-            console.log('Species auto-selected after adding to database:', species.name);
+    try {
+        const speciesInput = document.getElementById('species');
+        const dropdown = document.getElementById('species-autocomplete');
+        
+        console.log('Selecting species:', species.name);
+        
+        // Set the input value
+        speciesInput.value = species.name;
+        selectedSpeciesInfo = species;
+        dropdown.style.display = 'none';
+        
+        // If from GBIF, add to database (but don't reload - just update source)
+        if (species.source === 'gbif') {
+            console.log('Species from GBIF, adding to database...');
+            const addResult = await addSpeciesToDatabase(species);
+            if (addResult) {
+                // Update species to mark it as now in database
+                selectedSpeciesInfo.source = 'database';
+                
+                // Re-confirm the input value is still set (defensive)
+                if (speciesInput.value !== species.name) {
+                    speciesInput.value = species.name;
+                }
+                
+                console.log('✅ Species auto-selected after adding to database:', species.name);
+            } else {
+                console.log('❌ Failed to add species to database');
+            }
         }
+        
+        // Trigger size validation
+        validateSize();
+        
+        console.log('Species selection complete, input value:', speciesInput.value);
+    } catch (error) {
+        console.error('Error in selectSpecies:', error);
     }
-    
-    // Trigger size validation
-    validateSize();
 }
 
 async function addSpeciesToDatabase(species) {

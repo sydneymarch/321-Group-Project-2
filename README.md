@@ -18,6 +18,31 @@ Open `client/resources/homepage.html` with Live Server or similar.
 
 - **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Complete end-to-end testing instructions
 - **[AUTHENTICATION_GUIDE.md](./AUTHENTICATION_GUIDE.md)** - Authentication system documentation
+- **[SHOPPING_CART_GUIDE.md](./SHOPPING_CART_GUIDE.md)** - 🛒 Shopping cart & checkout system
+- **[SPECIES_SYSTEM.md](./SPECIES_SYSTEM.md)** - Species autocomplete with GBIF/IUCN integration
+
+## 🛒 NEW: Shopping Cart & Checkout System
+
+**Full e-commerce experience implemented!**
+
+### Features:
+- ✅ **Shopping Cart** - Add multiple catches, adjust quantities, remove items
+- ✅ **Cart Badge** - Real-time item count in navbar
+- ✅ **Persistent Cart** - Items saved in localStorage
+- ✅ **Checkout Flow** - Shipping address, delivery notes, order summary
+- ✅ **Order Creation** - Automatic Order records, marks catches unavailable
+- ✅ **Order Confirmation** - Order ID, delivery date, success modal
+
+### How It Works:
+1. **Add to Cart**: Click "Add to Cart" on any catch
+2. **View Cart**: Click cart icon (🛒) in navbar
+3. **Update Items**: Change quantities or remove items
+4. **Checkout**: Enter shipping info, review order
+5. **Place Order**: Creates Order in database, clears cart
+
+**See [SHOPPING_CART_GUIDE.md](./SHOPPING_CART_GUIDE.md) for complete documentation.**
+
+---
 
 ## ✨ Recent Bug Fixes (Latest)
 
@@ -29,13 +54,15 @@ All critical functional bugs have been fixed:
 3. ✅ **Authentication on Purchases** - Buyers must be logged in, BuyerID from session
 4. ✅ **Admin Session IDs** - All admin actions use logged-in admin's UserID (not hardcoded)
 5. ✅ **Photo Upload** - Converts to base64 and saves reference
+6. ✅ **Shopping Cart** - Full cart system replacing simple "claim" button
 
 ### What Was Fixed:
 - `SeaTrueController.cs`: Added `/catches/submit` endpoint with proper authentication
-- `SeaTrueController.cs`: Fixed `/catches/{id}/claim` to create Order records with session BuyerID
+- `SeaTrueController.cs`: Added `/order/create` endpoint for cart checkout
 - `AdminController.cs`: All admin actions now use `HttpContext.Session.GetInt32("UserId")`
 - `fisher.js`: Implemented actual API submission with photo upload
-- `marketplace.js`: Added authentication checks before claiming purchases
+- `marketplace.js`: Replaced claim with add-to-cart functionality
+- `cart.js`: New shopping cart manager with localStorage persistence
 
 ## 🧪 Testing
 

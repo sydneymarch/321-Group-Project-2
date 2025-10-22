@@ -706,11 +706,11 @@ function displayCatchDetailsModal(catchData) {
 
 // Initialize modals
 function initializeModals() {
-    const claimBtn = document.getElementById('claimPurchase');
+    const addToCartBtn = document.getElementById('addToCartBtn');
     const contactBtn = document.getElementById('contactFisher');
     
-    if (claimBtn) {
-        claimBtn.addEventListener('click', handleClaimPurchase);
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', handleAddToCart);
     }
     
     if (contactBtn) {
@@ -718,49 +718,45 @@ function initializeModals() {
     }
 }
 
-// Handle claim purchase
-async function handleClaimPurchase() {
+// Handle add to cart
+function handleAddToCart() {
     if (!currentCatchId) return;
     
-    // Check if user is authenticated
-    if (typeof authManager === 'undefined' || !authManager.currentUser) {
-        alert('Please login as a buyer to claim purchases.');
-        // Show login modal if available
-        const loginModal = document.getElementById('loginModal');
-        if (loginModal) {
-            const modal = new bootstrap.Modal(loginModal);
-            modal.show();
-        }
+    // Find the current catch data (API returns "id" lowercase)
+    const catchData = allCatches.find(c => c.id === currentCatchId);
+    
+    if (!catchData) {
+        console.error('Catch not found. currentCatchId:', currentCatchId, 'allCatches:', allCatches);
+        alert('Catch not found');
         return;
     }
     
-    // Check if user is a buyer
-    if (authManager.currentUser.role !== 'Buyer') {
-        alert('Only buyers can claim purchases. Please login with a buyer account.');
-        return;
-    }
+    // Normalize property names for cart (cart expects catchId, but API returns id)
+    const normalizedData = {
+        catchId: catchData.id,
+        species: catchData.species,
+        scientificName: catchData.scientificName,
+        weight: catchData.weight,
+        length: catchData.length,
+        price: catchData.price,
+        location: catchData.location,
+        fisherName: catchData.fisherName,
+        fisherId: catchData.fisherId,
+        photoUrl: catchData.imageUrl || catchData.thumbnailUrl,
+        iucnRedListStatus: catchData.conservationStatus
+    };
     
-    try {
-        const response = await fetch(`${MARKETPLACE_API_URL}/catches/${currentCatchId}/claim`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}) // Buyer ID comes from session
-        });
+    // Add to cart
+    if (typeof shoppingCart !== 'undefined') {
+        shoppingCart.addItem(normalizedData);
         
-        const result = await response.json();
-        
-        if (response.ok) {
-            alert(`Purchase claimed successfully! Order ID: ${result.orderId}. Total: $${result.totalPrice}. Expected delivery: ${result.expectedDelivery}`);
-            bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal')).hide();
-            await loadCatches();
-            applyAllFilters();
-        } else {
-            alert(result.message || 'Failed to claim purchase');
+        // Close details modal
+        const detailsModal = bootstrap.Modal.getInstance(document.getElementById('catchDetailsModal'));
+        if (detailsModal) {
+            detailsModal.hide();
         }
-    } catch (error) {
-        console.error('Error claiming purchase:', error);
-        alert('Failed to claim purchase. Please try again.');
+    } else {
+        alert('Shopping cart not available');
     }
 }
 
